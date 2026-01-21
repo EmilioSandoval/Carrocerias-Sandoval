@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="menu.html" class="nav__logo">
+                <span>Carrocerias Sandoval</span>
+            </a>
+        </nav>
+    </header>
+    <!--EMPIEZA EL CAMBIO-->
+    <main class="main">
+    <section class="inicio">
+        <div class="contenedor_inicio">
+            <div class="datos_inicio">
+                <form class="form" action="/cliente-registro" method="POST">
+                    <h1>INICIO DE SESIÓN</h1>
+                    <p class="tagline">INICIA SESIÓN</p>
+                    
+                    <div class="info-cuenta">
+                        <div class="input-boxReg">
+                            <label for="email"><i class="ri-mail-line"></i> Correo Electrónico</label>
+                            <input class="inputsR" type="email" id="email" name="email" required placeholder="tu@correo.com">
+                        </div>
+                        
+                        <div class="input-boxReg">
+                            <label for="password"><i class="ri-lock-password-line"></i> Contraseña</label>
+                            <input class="inputsR" type="password" id="password" name="password" required placeholder="Crea una contraseña">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-menu-crear">
+                        INICIAR SESIÓN
+                    </button>
+                    
+                    <div class="link-registro">
+                        <a href="cliente-registro.html">
+                            ¿No tienes cuenta aun? Registrate aquí
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+    <!--PIE DE PAGINA-->
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie1">
+            <div class="box">
+                <h2>NOSOTROS</h2>
+                <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
+                <p>A través de esta plataforma, buscamos mostrar nuestra trayectoria y los trabajos realizados.</p>
+            </div>
+
+            <div class="box">
+                <h2>Contáctanos</h2>
+                <div class="redes">
+                    <a href="#" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
+                    <a href="#" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
+                    <a href="#" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+
+    <script src="../JS/index.js"></script>
+</body>
+</html>

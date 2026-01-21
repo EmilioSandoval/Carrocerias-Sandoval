@@ -1,0 +1,219 @@
+:root {
+    --fondo-oscuro: #101820; 
+    --fondo-tarjeta: #1a242d; 
+    --acento-amarillo: #ffcc00; 
+    --texto-blanco: #ffffff;
+    --texto-gris: #b0b3b8;
+}
+
+body {
+    background-color: var(--fondo-oscuro);
+    color: var(--texto-blanco);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    /* Eliminamos align-items de aquí para evitar conflictos */
+}
+
+/* --- ENCABEZADO --- */
+.header {
+    background-color: #0b1116; /* Un tono más oscuro que el fondo */
+    padding: 10px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    border-bottom: 1px solid #2a3642;
+}
+
+.navegador {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav__logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--texto-blanco);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.nav__logo img {
+    height: 60px; /* Tamaño controlado para el logo */
+    width: auto;
+}
+
+/* --- SECCIÓN HERO --- */
+.inicio {
+    position: relative;
+    height: 60vh; /* Altura ajustada */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(rgba(16, 24, 32, 0.7), rgba(16, 24, 32, 0.7)), 
+                url('../IMAGENES/Taller.jpg') center/cover no-repeat;
+}
+
+.datos_inicio h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 0;
+}
+/* --- FORMULARIO DE REGISTRO --- */
+.form-registro {
+    background-color: var(--fondo-tarjeta);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    width: 90%;
+    max-width: 500px;
+    margin: 40px auto;
+}
+.input-boxReg{
+    width: 100%; 
+    border: none; 
+    cursor: pointer;
+    position: center;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15px;
+}
+
+.advise-box {
+    background-color: rgba(255, 204, 0, 0.1); /* Amarillo muy suave de fondo */
+    border-left: 4px solid var(--acento-amarillo);
+    padding: 10px 15px;
+    margin-top: -10px; /* Pegado al input */
+    margin-bottom: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--texto-gris);
+    text-align: left;
+}
+
+.advise-box i {
+    color: var(--acento-amarillo);
+    font-size: 1.2rem;
+}
+
+.advise-error {
+    background-color: rgba(255, 77, 77, 0.1);
+    border-left-color: #ff4d4d;
+    color: #ff4d4d;
+}
+.btn-menu-crear{
+   width: 100%; /* Ocupa todo el ancho del formulario */
+    background-color: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-menu-crear:hover {
+    background-color: #e6b800;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);
+}
+.tagline {
+    color: var(--acento-amarillo);
+    letter-spacing: 5px;
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+.link-registro {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    color: var(--fondo-oscuro);
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* --- MENÚ DE OPCIONES (Tarjetas) --- */
+.menu-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 25px; /* Espacio real entre botones */
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+    position: relative;
+    z-index: 10;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.btn-menu {
+    background-color: var(--fondo-tarjeta);
+    padding: 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--texto-blanco);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s, border-color 0.3s;
+    border: 1px solid transparent;
+}
+
+.btn-menu:hover {
+    transform: translateY(-5px);
+    border-color: var(--acento-amarillo);
+}
+/* --- PIE DE PÁGINA --- */
+.pie_de_pagina {
+    background: linear-gradient(rgba(11, 17, 22, 0.9), rgba(11, 17, 22, 0.9)), 
+                url('../IMAGENES/Carrocerias-Sandoval.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 60px 20px 20px;
+    border-top: 2px solid var(--acento-amarillo);
+    color: var(--texto-blanco);
+}
+
+.contenedor_pie1 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2; /* Asegura que el texto esté por encima del fondo */
+}
+.contenedor_pie1 .box h2 {
+    margin-bottom: 15px;
+    font-size: 2rem;
+    color: var(--acento-amarillo);
+}
+.redes a {
+    color: var(--texto-blanco);
+    font-size: 1.5rem;
+    margin-right: 15px;
+    transition: 0.3s;
+}
+
+.redes a:hover {
+    color: var(--acento-amarillo);
+}
