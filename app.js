@@ -21,6 +21,12 @@ app.get('/menu', (req, res) => res.render('menu'));
 app.get('/servicios', (req, res) => res.render('servicios'));
 app.get('/trabajos', (req, res) => res.render('trabajos'));
 app.get('/contactos', (req, res) => res.render('contactos'));
+app.get('/pagina-cliente', (req, res) => {
+    res.render('pagina-cliente', { userRole: 'cliente' }); 
+});
+app.get('/pagina-empleado', (req, res) => {
+    res.render('pagina-empleado', { userRole: 'empleado' }); 
+});
 
 // Páginas de destino final
 app.get('/pagina-cliente', (req, res) => res.render('pagina-cliente'));
