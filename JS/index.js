@@ -33,19 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Validación avanzada de contraseña
+                const adviseBox = form.querySelector('#password-advise');
+
                 if (campo.type === "password") {
-                    if (campo.value.length < 8) {
-                        esValido = false;
-                        alert("La contraseña debe tener al menos 8 caracteres.");
-                        campo.style.borderColor = "#ff4d4d";
-                    } else if (!regexSeguridad.test(campo.value)) {
-                        esValido = false;
-                        alert("La contraseña debe incluir al menos una letra mayúscula y un carácter especial (ej: !@#$).");
-                        campo.style.borderColor = "#ff4d4d";
+                const pass = campo.value;
+                const cumpleSeguridad = regexSeguridad.test(pass) && pass.length >= 8;
+
+                if (!cumpleSeguridad) {
+                    esValido = false;
+                    campo.style.borderColor = "#ff4d4d";
+                    adviseBox.classList.add('advise-error'); // Cambia el cuadro a rojo
                     } else {
-                        campo.style.borderColor = "#2ecc71"; // Verde si cumple todo
-                    }
+                    campo.style.borderColor = "#2ecc71";
+                    adviseBox.classList.remove('advise-error'); // Vuelve al color original
                 }
+            }   
             });
 
             if (!esValido) {
