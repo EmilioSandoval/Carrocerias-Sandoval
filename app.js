@@ -12,7 +12,7 @@ app.set('views', path.join(__dirname, 'HTML'));
 app.use(express.static(path.join(__dirname)));
 
 // --- RUTAS DE NAVEGACIÓN (GET) ---
-app.get('/', (req, res) => res.render('menu'));
+app.get('/', (req, res) => res.render('inicio'));
 app.get('/cliente-registro', (req, res) => res.render('cliente-registro', { successRegister: false }));
 app.get('/cliente-inicio', (req, res) => res.render('cliente-inicio'));
 app.get('/empleado-registro', (req, res) => res.render('empleado-registro', { successRegister: false }));
