@@ -17,6 +17,10 @@ app.get('/cliente-registro', (req, res) => res.render('cliente-registro', { succ
 app.get('/cliente-inicio', (req, res) => res.render('cliente-inicio'));
 app.get('/empleado-registro', (req, res) => res.render('empleado-registro', { successRegister: false }));
 app.get('/empleado-inicio', (req, res) => res.render('empleado-inicio'));
+app.get('/menu', (req, res) => res.render('menu'));
+app.get('/servicios', (req, res) => res.render('servicios'));
+app.get('/trabajos', (req, res) => res.render('trabajos'));
+app.get('/contactos', (req, res) => res.render('contactos'));
 
 // Páginas de destino final
 app.get('/pagina-cliente', (req, res) => res.render('pagina-cliente'));

@@ -60,4 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
         });
     });
+    const navMenu = document.getElementById('nav-menu'),
+      navToggle = document.getElementById('nav-toggle'),
+      navClose = document.getElementById('nav-close');
+
+/* Mostrar menú */
+if(navToggle){
+    navToggle.addEventListener('click', () =>{
+        navMenu.classList.add('show-menu');
+    });
+}
+
+/* Ocultar menú */
+if(navClose){
+    navClose.addEventListener('click', () =>{
+        navMenu.classList.remove('show-menu');
+    });
+}
 });

@@ -256,3 +256,52 @@ body {
     font-size: 0.9rem;
     margin: 5px 0;
 }
+@media screen and (max-width: 768px) {
+    .nav__menu {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Escondido totalmente a la derecha */
+    background-color: var(--fondo-tarjeta);
+    width: 300px; /* Ancho fijo para el panel */
+    height: 100%;
+    padding: 4rem 2rem;
+    transition: 0.4s; /* Suavidad al abrir/cerrar */
+    z-index: 100;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    }
+}
+
+/* Clase que se añade con JS para mostrar el menú */
+.show-menu {
+    right: 0 !important;
+}
+
+/* Limpieza de la lista que ves en tu imagen */
+.nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    list-style: none; /* Quita los puntos negros que salen en tu foto */
+}
+
+.nav__link {
+    color: var(--texto-blanco);
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.nav__link:hover {
+    color: var(--acento-amarillo);
+}
+
+/* Botón de cerrar (la X) */
+.nav__close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--texto-blanco);
+}
