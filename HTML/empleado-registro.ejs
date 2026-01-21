@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
     <link rel="stylesheet" href="../CSS/style.css">
 </head>
-<body>
-    <header class="header" id="header">
+    <body>
+       <header class="header" id="header">
         <nav class="navegador">
             <a href="menu.html" class="nav__logo">
                 <span>Carrocerias Sandoval</span>
@@ -20,9 +20,9 @@
     <section class="inicio">
         <div class="contenedor_inicio">
             <div class="datos_inicio">
-                <form class="form" action="/cliente-registro" method="POST">
-                    <h1>INICIO DE SESIÓN</h1>
-                    <p class="tagline">INICIA SESIÓN</p>
+                <form class="form" action="/empleado-registro" method="POST">
+                    <h1>Registro de Usuario</h1>
+                    <p class="tagline">CREA TU CUENTA</p>
                     
                     <div class="info-cuenta">
                         <div class="input-boxReg">
@@ -34,15 +34,19 @@
                             <label for="password"><i class="ri-lock-password-line"></i> Contraseña</label>
                             <input class="inputsR" type="password" id="password" name="password" required placeholder="Crea una contraseña">
                         </div>
+                        <div id="password-advise" class="advise-box">
+                            <i class="ri-information-line"></i>
+                            <span>La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial.</span>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-menu-crear">
-                        INICIAR SESIÓN
+                        REGISTRARSE AHORA
                     </button>
                     
                     <div class="link-registro">
-                        <a href="cliente-registro.html">
-                            ¿No tienes cuenta aun? Registrate aquí
+                        <a href="empleado-inicio.html">
+                            ¿Ya tienes cuenta? Inicia sesión aquí
                         </a>
                     </div>
                 </form>
@@ -51,7 +55,7 @@
     </section>
 </main>
     <!--PIE DE PAGINA-->
-    <footer class="pie_de_pagina">
+   <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
                 <h2>NOSOTROS</h2>

@@ -51,8 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!esValido) {
-                evento.preventDefault(); // Detiene el envío si falla la validación
-            }
+        evento.preventDefault(); // Solo detiene si hay errores
+        console.log("Formulario con errores");
+    } else {
+        // Al NO llamar a preventDefault(), el formulario viajará 
+        // automáticamente al 'action' definido en el HTML
+        console.log("Datos válidos, enviando al servidor...");
+    }
         });
     });
 });
