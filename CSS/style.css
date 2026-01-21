@@ -217,3 +217,42 @@ body {
 .redes a:hover {
     color: var(--acento-amarillo);
 }
+.galeria-trabajos, .contacto-encargados {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.trabajo-card, .encargado-card {
+    background-color: var(--fondo-tarjeta);
+    border-radius: 12px;
+    overflow: hidden;
+    border-bottom: 4px solid var(--acento-amarillo);
+    transition: transform 0.3s ease;
+}
+
+.encargado-card {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.foto-perfil {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--acento-amarillo);
+}
+
+.encargado-datos h3 {
+    color: var(--acento-amarillo);
+    margin-bottom: 10px;
+}
+
+.encargado-datos p {
+    font-size: 0.9rem;
+    margin: 5px 0;
+}
