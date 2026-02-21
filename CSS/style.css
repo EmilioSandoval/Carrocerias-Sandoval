@@ -1,32 +1,48 @@
+/* --- VARIABLES DE MARCA --- */
 :root {
     --fondo-oscuro: #101820; 
     --fondo-tarjeta: #1a242d; 
     --acento-amarillo: #ffcc00; 
     --texto-blanco: #ffffff;
     --texto-gris: #b0b3b8;
+    --rojo-error: #ff4d4d;
+    --verde-exito: #2ecc71;
+}
+
+/* --- RESET & CONFIGURACIÓN BASE --- */
+* {
+    box-sizing: border-box; /* Evita que el padding desborde los elementos */
+    margin: 0;
+    padding: 0;
 }
 
 body {
     background-color: var(--fondo-oscuro);
     color: var(--texto-blanco);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    /* Eliminamos align-items de aquí para evitar conflictos */
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-/* --- ENCABEZADO --- */
-.header {
-    background-color: #0b1116; /* Un tono más oscuro que el fondo */
-    padding: 10px 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    border-bottom: 1px solid #2a3642;
-}
-
-.navegador {
+/* --- CONTENEDOR REUTILIZABLE --- */
+.container {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+/* --- ENCABEZADO (HEADER) --- */
+.header {
+    background-color: #0b1116;
+    padding: 15px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    border-bottom: 1px solid #2a3642;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navegador {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -36,252 +52,41 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: bold;
     color: var(--texto-blanco);
     text-decoration: none;
-    transition: 0.3s;
 }
 
 .nav__logo img {
-    height: 60px; /* Tamaño controlado para el logo */
+    height: 50px;
     width: auto;
 }
 
-/* --- SECCIÓN HERO --- */
-.inicio {
-    position: relative;
-    height: 60vh; /* Altura ajustada */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: linear-gradient(rgba(16, 24, 32, 0.7), rgba(16, 24, 32, 0.7)), 
-                url('../IMAGENES/Taller.jpg') center/cover no-repeat;
-}
-
-.datos_inicio h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin: 0;
-}
-/* --- FORMULARIO DE REGISTRO --- */
-.form-registro {
-    background-color: var(--fondo-tarjeta);
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    width: 90%;
-    max-width: 500px;
-    margin: 40px auto;
-}
-.input-boxReg{
-    width: 100%; 
-    border: none; 
-    cursor: pointer;
-    position: center;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 15px;
-}
-
-.advise-box {
-    background-color: rgba(255, 204, 0, 0.1); /* Amarillo muy suave de fondo */
-    border-left: 4px solid var(--acento-amarillo);
-    padding: 10px 15px;
-    margin-top: -10px; /* Pegado al input */
-    margin-bottom: 20px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    color: var(--texto-gris);
-    text-align: left;
-}
-
-.advise-box i {
-    color: var(--acento-amarillo);
-    font-size: 1.2rem;
-}
-
-.advise-error {
-    background-color: rgba(255, 77, 77, 0.1);
-    border-left-color: #ff4d4d;
-    color: #ff4d4d;
-}
-.btn-menu-crear{
-   width: 100%; /* Ocupa todo el ancho del formulario */
-    background-color: var(--acento-amarillo);
-    color: var(--fondo-oscuro);
-    padding: 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-}
-.btn-menu-crear:hover {
-    background-color: #e6b800;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);
-}
-.tagline {
-    color: var(--acento-amarillo);
-    letter-spacing: 5px;
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 1.2rem;
-}
-.link-registro {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 25px;
-    color: var(--fondo-oscuro);
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-/* --- MENÚ DE OPCIONES (Tarjetas) --- */
-.menu-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-    gap: 25px; /* Espacio real entre botones */
-    width: 90%;
-    max-width: 1000px;
-    margin: 40px auto;
-    position: relative;
-    z-index: 10;
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.btn-menu {
-    background-color: var(--fondo-tarjeta);
-    padding: 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    color: var(--texto-blanco);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s, border-color 0.3s;
-    border: 1px solid transparent;
-}
-
-.btn-menu:hover {
-    transform: translateY(-5px);
-    border-color: var(--acento-amarillo);
-}
-/* --- PIE DE PÁGINA --- */
-.pie_de_pagina {
-    background: linear-gradient(rgba(11, 17, 22, 0.9), rgba(11, 17, 22, 0.9)), 
-                url('../IMAGENES/Carrocerias-Sandoval.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    padding: 60px 20px 20px;
-    border-top: 2px solid var(--acento-amarillo);
-    color: var(--texto-blanco);
-}
-
-.contenedor_pie1 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 40px;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 2; /* Asegura que el texto esté por encima del fondo */
-}
-.contenedor_pie1 .box h2 {
-    margin-bottom: 15px;
-    font-size: 2rem;
-    color: var(--acento-amarillo);
-}
-.redes a {
-    color: var(--texto-blanco);
-    font-size: 1.5rem;
-    margin-right: 15px;
-    transition: 0.3s;
-}
-
-.redes a:hover {
-    color: var(--acento-amarillo);
-}
-.galeria-trabajos, .contacto-encargados {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-}
-
-.trabajo-card, .encargado-card {
-    background-color: var(--fondo-tarjeta);
-    border-radius: 12px;
-    overflow: hidden;
-    border-bottom: 4px solid var(--acento-amarillo);
-    transition: transform 0.3s ease;
-}
-
-.encargado-card {
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.foto-perfil {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--acento-amarillo);
-}
-
-.encargado-datos h3 {
-    color: var(--acento-amarillo);
-    margin-bottom: 10px;
-}
-
-.encargado-datos p {
-    font-size: 0.9rem;
-    margin: 5px 0;
-}
-@media screen and (max-width: 4000px) {
-    .nav__menu {
+/* --- MENÚ RETRÁCTIL --- */
+.nav__menu {
     position: fixed;
     top: 0;
-    right: -100%; /* Escondido totalmente a la derecha */
+    right: -100%; /* Escondido por defecto */
     background-color: var(--fondo-tarjeta);
-    width: 300px; /* Ancho fijo para el panel */
+    width: 280px;
     height: 100%;
-    padding: 4rem 2rem;
-    transition: 0.4s; /* Suavidad al abrir/cerrar */
-    z-index: 100;
+    padding: 5rem 2rem;
+    transition: 0.4s ease-in-out;
+    z-index: 1100;
     box-shadow: -5px 0 15px rgba(0,0,0,0.5);
-    }
+    border-left: 2px solid var(--acento-amarillo);
 }
 
-/* Clase que se añade con JS para mostrar el menú */
 .show-menu {
     right: 0 !important;
 }
 
-/* Limpieza de la lista que ves en tu imagen */
 .nav__list {
+    list-style: none;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    list-style: none; /* Quita los puntos negros que salen en tu foto */
 }
 
 .nav__link {
@@ -290,18 +95,237 @@ body {
     text-transform: uppercase;
     text-decoration: none;
     transition: 0.3s;
+    font-size: 1.1rem;
 }
 
 .nav__link:hover {
     color: var(--acento-amarillo);
 }
 
-/* Botón de cerrar (la X) */
+.nav__toggle, .nav__close {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--texto-blanco);
+}
+
 .nav__close {
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
-    font-size: 1.5rem;
+}
+
+/* --- SECCIONES DE TEXTO (H1, Taglines) --- */
+h1, .main-title {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.tagline {
+    color: var(--acento-amarillo);
+    letter-spacing: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    margin-bottom: 2rem;
+    display: block;
+}
+
+p {
+    color: var(--texto-gris);
+}
+
+/* --- SECCIÓN HERO (INICIO) --- */
+.inicio {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1rem;
+    background: linear-gradient(rgba(16, 24, 32, 0.75), rgba(16, 24, 32, 0.75)), 
+                url('../IMAGENES/Taller.jpg') center/cover no-repeat;
+}
+
+/* --- FORMULARIOS (LOGIN/REGISTRO) --- */
+.form {
+    background-color: var(--fondo-tarjeta);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    width: 100%;
+    max-width: 450px;
+    margin: 2rem auto;
+}
+
+.input-boxReg {
+    margin-bottom: 1.2rem;
+    text-align: left;
+}
+
+.input-boxReg label {
+    display: block;
+    color: var(--texto-gris);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.inputsR {
+    width: 100%;
+    padding: 12px;
+    background: #0b1116;
+    border: 1px solid #2a3642;
+    color: white;
+    border-radius: 6px;
+    outline: none;
+}
+
+.btn-menu-crear {
+    width: 100%;
+    background-color: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    padding: 18px; /* Un poco más alto para que sea fácil de tocar */
+    border-radius: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: none;
     cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+    font-size: 1rem;
+    display: block; /* Asegura que tome todo el ancho */
+}
+
+.btn-menu-crear:hover {
+    background-color: #e6b800;
+    letter-spacing: 1px; /* Efecto sutil al pasar el mouse */
+}
+/* --- GRID DE OPCIONES Y GALERÍA --- */
+.menu-options, .galeria-trabajos, .contacto-encargados {
+    display: grid;
+    /* Grid fluido: cambia de 1 a 3 columnas según el espacio */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin: 2rem 0;
+}
+
+.btn-menu {
+    background-color: var(--fondo-tarjeta);
+    padding: 40px 20px; /* Más espacio interno */
+    border-radius: 15px;
+    text-decoration: none;
     color: var(--texto-blanco);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    border: 2px solid transparent;
+    border-bottom: 5px solid var(--acento-amarillo); /* El borde grueso abajo que tenías */
+    transition: all 0.3s ease;
+}
+
+.btn-menu:hover {
+    transform: translateY(-10px);
+    border-color: var(--acento-amarillo);
+    box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2);
+}
+
+.btn-menu i {
+    font-size: 3rem; /* Tamaño de los iconos */
+    color: var(--acento-amarillo);
+}
+
+.btn-menu span {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.trabajo-card, .encargado-card {
+    background-color: var(--fondo-tarjeta);
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    border-bottom: 4px solid var(--acento-amarillo);
+    transition: transform 0.3s ease;
+}
+
+
+.encargado-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap; /* Para que el texto baje en móviles muy pequeños */
+}
+
+.foto-perfil {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--acento-amarillo);
+}
+
+/* --- PIE DE PÁGINA (FOOTER) --- */
+.pie_de_pagina {
+    background: linear-gradient(rgba(11, 17, 22, 0.9), rgba(11, 17, 22, 0.9)), 
+                url('../IMAGENES/Carrocerias-Sandoval.jpeg') center/cover;
+    padding: 60px 20px 20px;
+    border-top: 2px solid var(--acento-amarillo);
+    margin-top: 4rem;
+}
+
+.contenedor_pie1 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.box h2 {
+    color: var(--acento-amarillo);
+    margin-bottom: 15px;
+}
+
+.redes a {
+    color: var(--texto-blanco);
+    text-decoration: none;
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.redes a:hover {
+    color: var(--acento-amarillo);
+}
+
+/* --- MEDIA QUERIES (AJUSTES MÓVILES) --- */
+@media screen and (max-width: 768px) {
+    .nav__logo span {
+        font-size: 1rem;
+    }
+    
+    .encargado-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .inicio {
+        min-height: 40vh;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .nav__logo span {
+        display: none; /* Esconde texto del logo en pantallas muy pequeñas para evitar encimamiento */
+    }
+    
+    .form {
+        padding: 20px;
+    }
 }
