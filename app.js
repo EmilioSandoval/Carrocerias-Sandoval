@@ -3,7 +3,20 @@ const app = express();
 const path = require('path');
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
+const { Pool } = require('pg');
 
+const pool = new Pool({
+    user: 'admin',
+    host: 'localhost', // Si corres el app.js fuera de Docker
+    database: 'carrocerias_db',
+    password: 'sandoval_password',
+    port: 5432,
+});
+
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) console.log("Error de conexión a DB", err);
+    else console.log("Base de datos conectada correctamente");
+});
 // --- CONFIGURACIÓN CRÍTICA ---
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
