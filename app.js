@@ -9,7 +9,7 @@ const pool = new Pool({
     user: 'admin',
     host: 'localhost', // Si corres el app.js fuera de Docker
     database: 'carrocerias_db',
-    password: 'sandoval_password',
+    password: 'Ultimatexbox16',
     port: 5432,
 });
 
@@ -34,6 +34,7 @@ app.get('/menu', (req, res) => res.render('menu'));
 app.get('/servicios', (req, res) => res.render('servicios'));
 app.get('/trabajos', (req, res) => res.render('trabajos'));
 app.get('/contactos', (req, res) => res.render('contactos'));
+app.get('/perfil', (req, res) => res.render('perfil'));
 app.get('/pagina-cliente', (req, res) => res.render('pagina-cliente', { userRole: 'cliente' }));
 app.get('/pagina-empleado', (req, res) => res.render('pagina-empleado', { userRole: 'empleado' }));
 
@@ -41,11 +42,38 @@ app.get('/pagina-empleado', (req, res) => res.render('pagina-empleado', { userRo
 app.post('/cliente-inicio', (req, res) => res.redirect('/pagina-cliente'));
 app.post('/empleado-inicio', (req, res) => res.redirect('/pagina-empleado'));
 
-app.post('/cliente-registro', (req, res) => {
-    res.render('cliente-registro', { successRegister: true });
+app.post('/cliente-registro', async (req, res) => {
+    console.log("Datos recibidos en /cliente-registro:", req.body);
+    const { nombre, correo, password } = req.body;
+
+    try {
+        const queryText = 'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1, $2, $3, $4)';
+        const values = [nombre, correo, password, 'cliente'];
+        
+        await pool.query(queryText, values);
+        
+        console.log(`Usuario ${nombre} registrado con éxito`);
+        res.redirect('cliente-inicio');
+    } catch (err) {
+        console.error('Error al insertar usuario:', err.message);
+        res.status(500).send("Error al registrar usuario. Posiblemente el correo ya existe.");
+    }
 });
-app.post('/empleado-registro', (req, res) => {
-    res.render('empleado-registro', { successRegister: true });
+app.post('/empleado-registro', async (req, res) => {
+    const { nombre, correo, password } = req.body;
+
+    try {
+        const queryText = 'INSERT INTO usuarios (nombre, correo, password, rol)';
+        const values = [nombre, correo, password, 'empleado'];
+
+        await pool.query(queryText, values);
+
+        console.log(`Usuario ${nombre} registrado con éxito`);
+        res.redirect('empleado-inicio');
+    } catch (err) {
+        console.error('Error al insertar usuario:', err.message);
+        res.status(500).send("Error al registrar usuario. Posiblemente el correo ya existe.");
+    }
 });
 
 app.listen(3000, () => console.log('Servidor en http://localhost:3000'));

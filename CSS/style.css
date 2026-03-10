@@ -245,7 +245,31 @@ p {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
+.btn-perfil-editar, .btn-perfil-eliminar {
+    width: 48%;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.btn-perfil-editar {
+    background-color: var(--verde-exito);
+    color: var(--fondo-oscuro);
+}
+.btn-perfil-editar:hover {
+    background-color: #27ae60;
+}
+.btn-perfil-eliminar {
+    background-color: var(--rojo-error);
+    color: var(--fondo-oscuro);
+}
+.btn-perfil-eliminar:hover {
+    background-color: #c0392b;
+}
 .trabajo-card, .encargado-card {
     background-color: var(--fondo-tarjeta);
     border-radius: 12px;
@@ -253,6 +277,17 @@ p {
     text-decoration: none;
     border-bottom: 4px solid var(--acento-amarillo);
     transition: transform 0.3s ease;
+}
+.perfil-card {
+    background-color: var(--fondo-tarjeta);
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    border-bottom: 4px solid var(--acento-amarillo);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 
