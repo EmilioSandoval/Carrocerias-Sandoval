@@ -31,12 +31,16 @@ app.get('/cliente-inicio', (req, res) => res.render('cliente-inicio'));
 app.get('/empleado-registro', (req, res) => res.render('empleado-registro', { successRegister: false }));
 app.get('/empleado-inicio', (req, res) => res.render('empleado-inicio'));
 app.get('/menu', (req, res) => res.render('menu'));
-app.get('/servicios', (req, res) => res.render('servicios'));
-app.get('/trabajos', (req, res) => res.render('trabajos'));
-app.get('/contactos', (req, res) => res.render('contactos'));
-app.get('/perfil', (req, res) => res.render('perfil'));
-app.get('/pagina-cliente', (req, res) => res.render('pagina-cliente', { userRole: 'cliente' }));
-app.get('/pagina-empleado', (req, res) => res.render('pagina-empleado', { userRole: 'empleado' }));
+app.get('/../servicios', (req, res) => res.render('servicios'));
+app.get('/../trabajos', (req, res) => res.render('trabajos'));
+app.get('/../contactos', (req, res) => res.render('contactos'));
+app.get('/../perfil', (req, res) => res.render('perfil'));
+app.get('/../pagina-cliente', (req, res) => res.render('pagina-cliente', { userRole: 'cliente' }));
+app.get('/../pagina-empleado', (req, res) => res.render('pagina-empleado', { userRole: 'empleado' }));
+app.get('/../inventario-taller', (req, res) => res.render('inventario-taller'));
+app.get('/../ordenes-trabajo', (req, res) => res.render('ordenes-trabajo'));
+app.get('/../historial-clientes', (req, res) => res.render('historial-clientes'));
+app.get('/../configuracion', (req, res) => res.render('configuracion'));
 
 
 app.post('/cliente-inicio', (req, res) => res.redirect('/pagina-cliente'));
