@@ -37,22 +37,32 @@
             <p class="tagline">Tus datos</p>
 
             <div class="contacto-perfil">
-                <div class="perfil-card">
-                    <img src="../IMAGENES/Encargado1.jpg" alt="Foto de perfil" class="foto-perfil-cliente">
-                    <div class="cliente-datos">
+                <div class="container perfil-card">
+    <h2>Mi Perfil</h2>
+    
+    <form action="/perfil/editar" method="POST">
+        <input type="hidden" name="id" value="<%= cliente.id %>">
+        
+        <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" value="<%= cliente.nombre %>" class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label>Teléfono:</label>
+            <input type="text" name="telefono" value="<%= cliente.telefono %>" class="form-input">
+        </div>
 
-                        <p><strong>Puesto:</strong> Director de Producción</p>
-                        <p><i class="ri-phone-fill"></i> +52 33 31 05 8247</p>
-                        <p><i class="ri-mail-fill"></i> carrocerias-sandoval@hotmail.com</p>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="btn-perfil-editar">
-                        Editar Perfil
-                    </button>
-                    <button type="submit" class="btn-perfil-eliminar">
-                        Eliminar Cuenta
-                    </button>
+        <div class="button-group">
+            <button type="submit" class="btn-editar">Guardar Cambios</button>
+        </div>
+    </form>
+
+    <form action="/perfil/eliminar" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.');">
+        <input type="hidden" name="id" value="<%= cliente.id %>">
+        <button type="submit" class="btn-eliminar">Eliminar Cuenta</button>
+    </form>
+</div>
         </div>
     </section>
 </main>

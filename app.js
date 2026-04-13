@@ -75,5 +75,51 @@ app.post('/empleado-registro', async (req, res) => {
         res.status(500).send("Error al registrar usuario. Posiblemente el correo ya existe.");
     }
 });
+// Ruta para Editar Perfil (Actualizar datos)
+app.get('/perfil', async (req, res) => {
+    // Aquí deberías obtener el ID del cliente de la sesión
+    // Por ahora, usemos un ID de prueba o el que obtengas de tu lógica de login
+    const clienteId = 1; 
+
+    try {
+        const result = await pool.query('SELECT * FROM clientes WHERE id = $1', [clienteId]);
+        
+        if (result.rows.length > 0) {
+            // Enviamos el primer resultado como la variable 'cliente'
+            res.render('perfil', { cliente: result.rows[0] });
+        } else {
+            res.send("Cliente no encontrado");
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error de servidor");
+    }
+});
+app.post('/perfil/editar', async (req, res) => {
+    const { id, nombre, telefono, email } = req.body; // Ajusta según tus columnas de la DB
+    try {
+        await pool.query(
+            'UPDATE usuarios SET nombre = $1, telefono = $2, email = $3 WHERE id = $4',
+            [nombre, telefono, email, id]
+        );
+        res.redirect('/perfil?success=updated');
+    } catch (err) {
+        console.error(err);
+        res.send("Error al actualizar el perfil");
+    }
+});
+
+// Ruta para Eliminar Cuenta
+app.post('/perfil/eliminar', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await pool.query('DELETE FROM usuarios WHERE id = $1', [id]);
+        // Aquí podrías destruir la sesión si estás usando una
+        res.redirect('/inicio?msg=account_deleted');
+    } catch (err) {
+        console.error(err);
+        res.send("Error al eliminar la cuenta");
+    }
+});
 
 app.listen(3000, () => console.log('Servidor en http://localhost:3000'));
