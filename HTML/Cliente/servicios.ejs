@@ -3,63 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Servicios | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
 </head>
 <body>
     <header class="header" id="header">
         <nav class="navegador">
-            <a href="#" class="nav__logo">
+            <a href="/Cliente/pagina-cliente" class="nav__logo">
                 <span>Carrocerias Sandoval</span>
             </a>
+
             <div class="nav__toggle" id="nav-toggle">
                 <i class="ri-menu-line"></i>
             </div>
+
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="pagina-cliente" class="nav__link">Inicio</a></li>
-                    <li class="nav__item"><a href="trabajos" class="nav__link">Trabajos</a></li>
-                    <li class="nav__item"><a href="contactos" class="nav__link">Contactos</a></li>
+                    <li class="nav__item"><a href="/Cliente/servicios" class="nav__link">Servicios</a></li>
+                    <li class="nav__item"><a href="/Cliente/trabajos" class="nav__link">Trabajos</a></li>
+                    <li class="nav__item"><a href="/Cliente/contactos" class="nav__link">Contacto</a></li>
+                    <li class="nav__item"><a href="/Cliente/perfil" class="nav__link">Perfil</a></li>
                     <li class="nav__item"><a href="/" class="nav__link">Cerrar Sesión</a></li>
                 </ul>
+
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
                 </div>
             </div>
         </nav>
     </header>
-<main class="main">
-    <section class="seccion-cliente">
-        <div class="container">
 
-            <h1 class="main-title">Nuestro Equipo</h1>
-            <p class="tagline">CONTACTO DIRECTO CON ENCARGADOS</p>
+    <main class="main servicios-page">
+        <section class="hero-section">
+            <h1>Nuestros Servicios</h1>
+            <p>Conoce algunos de los trabajos especializados que realizamos en carrocerías, interiores y pintura para autobuses y unidades.</p>
+        </section>
 
-            <div class="contacto-encargados">
-                <div class="encargado-card">
-                    <img src="../IMAGENES/Encargado1.jpg" alt="Ing. Felipe Sandoval" class="foto-perfil">
-                    <div class="encargado-datos">
-                        <h3>Ing. Felipe Sandoval</h3>
-                        <p><strong>Puesto:</strong> Director de Producción</p>
-                        <p><i class="ri-phone-fill"></i> +52 33 31 05 8247</p>
-                        <p><i class="ri-mail-fill"></i> carrocerias-sandoval@hotmail.com</p>
-                    </div>
+        <section class="servicios-grid">
+            <article class="servicio-card">
+                <img src="/IMAGENES/Conversiones.jpeg" alt="Conversiones de unidades">
+                <div class="servicio-info">
+                    <h3>Conversiones</h3>
+                    <p>Adaptación y transformación de unidades según las necesidades del cliente.</p>
+                    <span>Tiempo estimado: según proyecto</span>
                 </div>
+            </article>
 
-                <div class="encargado-card">
-                    <img src="../IMAGENES/Encargado2.jpg" alt="Lic. Emilio Sandoval" class="foto-perfil">
-                    <div class="encargado-datos">
-                        <h3>Lic. Emilio Sandoval</h3>
-                        <p><strong>Puesto:</strong> Atención al Cliente</p>
-                        <p><i class="ri-phone-fill"></i> +52 33 34 62 1112</p>
-                        <p><i class="ri-mail-fill"></i> oscarsandoval12346@outlook.com</p>
-                    </div>
+            <article class="servicio-card">
+                <img src="/IMAGENES/Interiores.jpeg" alt="Trabajos de interiores">
+                <div class="servicio-info">
+                    <h3>Interiores</h3>
+                    <p>Renovación y reparación de interiores para mejorar comodidad y presentación.</p>
+                    <span>Tiempo estimado: 3 a 10 días</span>
                 </div>
-            </div>
-        </div>
-    </section>
-</main>
+            </article>
+
+            <article class="servicio-card">
+                <img src="/IMAGENES/1.jpeg" alt="Reparación de carrocería">
+                <div class="servicio-info">
+                    <h3>Carrocería</h3>
+                    <p>Reparación, ajuste y reconstrucción de partes dañadas de la unidad.</p>
+                    <span>Tiempo estimado: según daño</span>
+                </div>
+            </article>
+
+            <article class="servicio-card">
+                <img src="/IMAGENES/Pintura general.jpeg" alt="Pintura general">
+                <div class="servicio-info">
+                    <h3>Pintura General</h3>
+                    <p>Aplicación completa de pintura con acabados profesionales para exterior.</p>
+                    <span>Cotización personalizada</span>
+                </div>
+            </article>
+
+            <article class="servicio-card">
+                <img src="/IMAGENES/Pulida.jpeg" alt="Pulida y detallado">
+                <div class="servicio-info">
+                    <h3>Pulida y Detallado</h3>
+                    <p>Mejora estética de la superficie con pulido, abrillantado y acabado final.</p>
+                    <span>Tiempo estimado: 1 a 3 días</span>
+                </div>
+            </article>
+
+            <article class="servicio-card">
+                <img src="/IMAGENES/Restauración.jpeg" alt="Restauración de unidades">
+                <div class="servicio-info">
+                    <h3>Restauración</h3>
+                    <p>Recuperación integral de unidades para devolverles funcionalidad e imagen.</p>
+                    <span>Tiempo estimado: según proyecto</span>
+                </div>
+            </article>
+        </section>
+    </main>
+
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
@@ -77,12 +114,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
 </body>
 </html>

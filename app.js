@@ -84,5 +84,114 @@ app.post('/empleado-registro', async (req, res) => {
         res.status(500).send("Error al registrar usuario. Posiblemente el correo ya existe.");
     }
 });
+// Ejemplo para Servicios
+app.get('/cliente/servicios', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM servicios';
+        const result = await pool.query(query);
+        // Pasamos el resultado o un arreglo vacío si no hay nada
+        res.render('Cliente/servicios', { servicios: result.rows || [] });
+    } catch (err) {
+        console.error(err);
+        // Importante: define la variable incluso en el error para que la página no rompa
+        res.render('Cliente/servicios', { servicios: [] });
+    }
+});
+
+// Ejemplo para Trabajos
+app.get('/cliente/trabajos', async (req, res) => {
+    try {
+        const clienteId = req.session.usuarioId; 
+        const query = 'SELECT * FROM trabajos WHERE cliente_id = $1';
+        const result = await pool.query(query, [clienteId]);
+        res.render('Cliente/trabajos', { trabajos: result.rows || [] });
+    } catch (err) {
+        console.error(err);
+        res.render('Cliente/trabajos', { trabajos: [] });
+    }
+});
+app.get('/Cliente/trabajos/:slug', (req, res) => {
+    const { slug } = req.params;
+
+    const trabajos = {
+        'aldo-trujillo': {
+            titulo: 'Trabajo Aldo Trujillo',
+            descripcion: 'Proyecto de carrocería y acabado final.',
+            imagenes: [
+                '/IMAGENES/Aldo Trujillo 1.jpeg',
+                '/IMAGENES/Aldo Trujillo 2.jpeg',
+                '/IMAGENES/Aldo Trujillo 3.jpeg',
+                '/IMAGENES/Aldo Trujillo 4.jpeg',
+                '/IMAGENES/Aldo Trujillo 5.jpeg',
+                '/IMAGENES/Aldo Trujillo 6.jpeg',
+                '/IMAGENES/Aldo Trujillo 7.jpeg'
+            ]
+        },
+        'saul': {
+            titulo: 'Trabajo Saúl',
+            descripcion: 'Proceso de reparación y pintura.',
+            imagenes: [
+                '/IMAGENES/Saul 1.jpeg',
+                '/IMAGENES/Saul 2.jpeg',
+                '/IMAGENES/Saul 3.jpeg',
+                '/IMAGENES/Saul 4.jpeg',
+                '/IMAGENES/Saul 5.jpeg',
+                '/IMAGENES/Saul 6.jpeg',
+                '/IMAGENES/Saul 7.jpeg',
+                '/IMAGENES/Saul 8.jpeg',
+                '/IMAGENES/Saul 9.jpeg',
+                '/IMAGENES/Saul 10.jpeg',
+                '/IMAGENES/Saul 11.jpeg',
+                '/IMAGENES/Saul 12.jpeg',
+                '/IMAGENES/Saul 13.jpeg',
+                '/IMAGENES/Saul 14.jpeg'
+            ]
+        },
+        'montolla': {
+            titulo: 'Trabajo Montoya',
+            descripcion: 'Restauración y detalles de estructura.',
+            imagenes: [
+                '/IMAGENES/Montolla.jpeg',
+                '/IMAGENES/Montolla 2.jpeg',
+                '/IMAGENES/Montolla 3.jpeg'
+            ]
+        },
+        'moy': {
+            titulo: 'Trabajo Moy',
+            descripcion: 'Trabajo de interiores y exterior.',
+            imagenes: [
+                '/IMAGENES/Moy 1.jpeg',
+                '/IMAGENES/Moy 2.jpeg',
+                '/IMAGENES/Moy 3.jpeg'
+            ]
+        },
+        'palomo': {
+            titulo: 'Trabajo Palomo',
+            descripcion: 'Reparación general y pintura.',
+            imagenes: [
+                '/IMAGENES/Palomo 1.jpeg',
+                '/IMAGENES/Palomo 2.jpeg',
+                '/IMAGENES/Palomo 3.jpeg'
+            ]
+        },
+        'outdoor': {
+            titulo: 'Trabajo Outdoor',
+            descripcion: 'Proyecto exterior terminado.',
+            imagenes: [
+                '/IMAGENES/Outdoor.jpeg',
+                '/IMAGENES/Outdoor 2.jpeg',
+                '/IMAGENES/Outdoor 3.jpeg'
+            ]
+        }
+    };
+
+    const trabajo = trabajos[slug];
+
+    if (!trabajo) {
+        return res.status(404).send('Trabajo no encontrado');
+    }
+
+    res.render('Cliente/detalle-trabajo', { trabajo });
+});
 
 app.listen(3000, () => console.log('Servidor en http://localhost:3000'));

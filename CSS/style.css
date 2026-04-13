@@ -344,6 +344,255 @@ p {
     color: var(--acento-amarillo);
 }
 
+.hero-section {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    color: #fff;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-section p {
+    max-width: 800px;
+    margin: 0 auto;
+    color: #cfcfcf;
+    line-height: 1.6;
+}
+
+.servicios-grid {
+    width: 90%;
+    max-width: 1300px;
+    margin: 0 auto 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.servicio-card {
+    background: #13202c;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.servicio-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,.35);
+}
+
+.servicio-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.servicio-info {
+    padding: 1.2rem;
+    color: #fff;
+}
+
+.servicio-info h3 {
+    margin-bottom: .8rem;
+    color: #ffcc00;
+}
+
+.servicio-info p {
+    margin-bottom: .8rem;
+    line-height: 1.5;
+    color: #d7d7d7;
+}
+
+.servicio-info span {
+    font-size: .95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.galeria-trabajos {
+    width: 90%;
+    max-width: 1300px;
+    margin: 0 auto 4rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    grid-auto-rows: 220px;
+}
+
+.trabajo-item {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #13202c;
+    text-decoration: none;
+}
+
+.trabajo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .35s ease;
+}
+
+.trabajo-item:hover img {
+    transform: scale(1.05);
+}
+
+.trabajo-item::after {
+    content: "Ver trabajo";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.trabajo-item:hover::after {
+    opacity: 1;
+}
+
+.trabajo-item.grande {
+    grid-row: span 2;
+}
+
+.trabajo-item.ancho {
+    grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+    .galeria-trabajos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .trabajo-item.ancho {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .galeria-trabajos {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 220px;
+    }
+
+    .trabajo-item.grande,
+    .trabajo-item.ancho {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+}
+    .hero-section h1 {
+        font-size: 2.2rem;
+    }
+.galeria-trabajos a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.trabajo-item {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 18px;
+    cursor: pointer;
+}
+
+.trabajo-item::after {
+    content: "Ver trabajo";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.trabajo-item:hover::after {
+    opacity: 1;
+}
+
+.carousel-section {
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto 4rem;
+}
+
+.carousel-container {
+    position: relative;
+    background: #13202c;
+    border-radius: 18px;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-img {
+    display: none;
+    width: 100%;
+    max-height: 650px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.carousel-img.active {
+    display: block;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    border: none;
+    padding: 1rem .9rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.carousel-btn.prev {
+    left: 20px;
+}
+
+.carousel-btn.next {
+    right: 20px;
+}
+
+.btn-volver {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #ffcc00;
+    font-weight: 700;
+    text-decoration: none;
+}
 /* --- MEDIA QUERIES (AJUSTES MÓVILES) --- */
 @media screen and (max-width: 768px) {
     .nav__logo span {
