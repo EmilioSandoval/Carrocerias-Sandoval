@@ -4,11 +4,12 @@ const path = require('path');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'carroceriassandoval1968@gmail.com',
-        pass: 'tu-contraseña'
+        pass: 'etcv vhkn olsk yxbz'
     }
 });
 
@@ -27,6 +28,7 @@ pool.query('SELECT NOW()', (err, res) => {
     if (err) console.log("Error de conexión a DB", err);
     else console.log("Base de datos conectada correctamente");
 });
+
 function esEmpleado(req, res, next) {
     // Asumiendo que guardas el usuario en la sesión tras el login
     if (req.session.usuario && req.session.usuario.rol === 'empleado') {
@@ -34,6 +36,7 @@ function esEmpleado(req, res, next) {
     }
     res.status(403).send('Acceso denegado: Esta área es exclusiva para empleados.');
 }
+
 // Configuración de EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'HTML'));
@@ -89,14 +92,14 @@ app.post('/empleado-registro', async (req, res) => {
 
     try {
         await pool.query(
-            'INSERT INTO usuarios (nombre, email, password, rol, empleado_id) VALUES ($1, $2, $3, $4, $5)',
-            [nombre, email, password, 'empleado', uniqueId]
+            'INSERT INTO usuarios (nombre, correo, password, rol, id_rol) VALUES ($1, $2, $3, $4, $5)',
+            [nombre, correo, password, 'empleado', uniqueId]
         );
 
-        // 3. Configurar el correo
+        // CONFIGURACIÓN DEL CORREO (CORREGIDA)
         const mailOptions = {
             from: '"Carrocerías Sandoval" <carroceriassandoval1968@gmail.com>',
-            to: email,
+            to: correo, // Antes decía email, por eso fallaba
             subject: 'Tu ID de Empleado - Acceso Exclusivo',
             html: `
                 <h1>Bienvenido al equipo, ${nombre}</h1>
@@ -106,26 +109,24 @@ app.post('/empleado-registro', async (req, res) => {
             `
         };
 
-        // 4. Enviar el correo
         await transporter.sendMail(mailOptions);
         
-        res.render('empleado-registro', { mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.' });
+        res.render('empleado-inicio', { mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.' });
 
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al registrar empleado.');
     }
 });
+
 // Ejemplo para Servicios
 app.get('/cliente/servicios', async (req, res) => {
     try {
         const query = 'SELECT * FROM servicios';
         const result = await pool.query(query);
-        // Pasamos el resultado o un arreglo vacío si no hay nada
         res.render('Cliente/servicios', { servicios: result.rows || [] });
     } catch (err) {
         console.error(err);
-        // Importante: define la variable incluso en el error para que la página no rompa
         res.render('Cliente/servicios', { servicios: [] });
     }
 });
@@ -142,6 +143,7 @@ app.get('/cliente/trabajos', async (req, res) => {
         res.render('Cliente/trabajos', { trabajos: [] });
     }
 });
+
 app.get('/Cliente/trabajos/:slug', (req, res) => {
     const { slug } = req.params;
 
