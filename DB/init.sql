@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     correo VARCHAR(100) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     rol VARCHAR(20) NOT NULL, -- 'cliente' o 'empleado'
+    -- Aquí guardaremos el ID exclusivo que se manda al correo
+    id_rol VARCHAR(50) UNIQUE, 
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

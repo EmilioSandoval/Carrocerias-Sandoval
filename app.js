@@ -2,6 +2,15 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const { Pool } = require('pg');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'carroceriassandoval1968@gmail.com',
+        pass: 'tu-contraseña'
+    }
+});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -18,7 +27,13 @@ pool.query('SELECT NOW()', (err, res) => {
     if (err) console.log("Error de conexión a DB", err);
     else console.log("Base de datos conectada correctamente");
 });
-
+function esEmpleado(req, res, next) {
+    // Asumiendo que guardas el usuario en la sesión tras el login
+    if (req.session.usuario && req.session.usuario.rol === 'empleado') {
+        return next();
+    }
+    res.status(403).send('Acceso denegado: Esta área es exclusiva para empleados.');
+}
 // Configuración de EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'HTML'));
@@ -40,11 +55,11 @@ app.get('/Cliente/trabajos', (req, res) => res.render('Cliente/trabajos'));
 app.get('/Cliente/contactos', (req, res) => res.render('Cliente/contactos'));
 app.get('/Cliente/perfil', (req, res) => res.render('Cliente/perfil'));
 app.get('/Cliente/pagina-cliente', (req, res) => res.render('Cliente/pagina-cliente', { userRole: 'cliente' }));
-app.get('/Empleado/pagina-empleado', (req, res) => res.render('Empleado/pagina-empleado', { userRole: 'empleado' }));
-app.get('/Empleado/inventario-taller', (req, res) => res.render('Empleado/Inventario-taller'));
-app.get('/Empleado/ordenes-trabajo', (req, res) => res.render('Empleado/ordenes-trabajo'));
-app.get('/Empleado/historial-clientes', (req, res) => res.render('Empleado/historial-clientes'));
-app.get('/Empleado/configuracion', (req, res) => res.render('Empleado/configuracion'));
+app.get('/Empleado/pagina-empleado', esEmpleado, (req, res) => res.render('Empleado/pagina-empleado', { userRole: 'empleado' }));
+app.get('/Empleado/inventario-taller', esEmpleado, (req, res) => res.render('Empleado/Inventario-taller'));
+app.get('/Empleado/ordenes-trabajo', esEmpleado, (req, res) => res.render('Empleado/ordenes-trabajo'));
+app.get('/Empleado/historial-clientes', esEmpleado, (req, res) => res.render('Empleado/historial-clientes'));
+app.get('/Empleado/configuracion', esEmpleado, (req, res) => res.render('Empleado/configuracion'));
 
 // Rutas POST
 app.post('/cliente-inicio', (req, res) => res.redirect('/Cliente/pagina-cliente'));
@@ -70,18 +85,35 @@ app.post('/cliente-registro', async (req, res) => {
 
 app.post('/empleado-registro', async (req, res) => {
     const { nombre, correo, password } = req.body;
+    const uniqueId = `EMP-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
     try {
-        const queryText = 'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1, $2, $3, $4)';
-        const values = [nombre, correo, password, 'empleado'];
+        await pool.query(
+            'INSERT INTO usuarios (nombre, email, password, rol, empleado_id) VALUES ($1, $2, $3, $4, $5)',
+            [nombre, email, password, 'empleado', uniqueId]
+        );
 
-        await pool.query(queryText, values);
+        // 3. Configurar el correo
+        const mailOptions = {
+            from: '"Carrocerías Sandoval" <carroceriassandoval1968@gmail.com>',
+            to: email,
+            subject: 'Tu ID de Empleado - Acceso Exclusivo',
+            html: `
+                <h1>Bienvenido al equipo, ${nombre}</h1>
+                <p>Se ha creado tu cuenta de empleado exitosamente.</p>
+                <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
+                <p>Guarda este ID, ya que será necesario para funciones administrativas.</p>
+            `
+        };
 
-        console.log(`Usuario ${nombre} registrado con éxito`);
-        res.redirect('/empleado-inicio');
-    } catch (err) {
-        console.error('Error al insertar usuario:', err.message);
-        res.status(500).send("Error al registrar usuario. Posiblemente el correo ya existe.");
+        // 4. Enviar el correo
+        await transporter.sendMail(mailOptions);
+        
+        res.render('empleado-registro', { mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al registrar empleado.');
     }
 });
 // Ejemplo para Servicios
