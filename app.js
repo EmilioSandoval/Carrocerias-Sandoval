@@ -4,7 +4,19 @@ const path = require('path');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const session = require('express-session');
 
+app.use(session({
+    secret: 'carrocerias_sandoval_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false,
+        maxAge:1000 * 60 * 60 * 2
+     } // Cambia a true si usas HTTPS
+
+}));
+
+// 1. Configuración de transporte
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -16,6 +28,7 @@ const transporter = nodemailer.createTransport({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// 2. Configuración de DB
 const pool = new Pool({
     user: 'admin',
     host: 'localhost',
@@ -29,24 +42,22 @@ pool.query('SELECT NOW()', (err, res) => {
     else console.log("Base de datos conectada correctamente");
 });
 
+// Middleware de seguridad
 function esEmpleado(req, res, next) {
-    // Asumiendo que guardas el usuario en la sesión tras el login
-    if (req.session.usuario && req.session.usuario.rol === 'empleado') {
+    if (req.session && req.session.usuario && req.session.usuario.rol === 'empleado') {
         return next();
     }
     res.status(403).send('Acceso denegado: Esta área es exclusiva para empleados.');
 }
 
-// Configuración de EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'HTML'));
 
-// Archivos estáticos
 app.use('/CSS', express.static(path.join(__dirname, 'CSS')));
 app.use('/JS', express.static(path.join(__dirname, 'JS')));
 app.use('/IMAGENES', express.static(path.join(__dirname, 'IMAGENES')));
 
-// Rutas GET
+// --- RUTAS GET ---
 app.get('/', (req, res) => res.render('inicio'));
 app.get('/cliente-registro', (req, res) => res.render('cliente-registro', { successRegister: false }));
 app.get('/cliente-inicio', (req, res) => res.render('cliente-inicio'));
@@ -59,88 +70,143 @@ app.get('/Cliente/contactos', (req, res) => res.render('Cliente/contactos'));
 app.get('/Cliente/perfil', (req, res) => res.render('Cliente/perfil'));
 app.get('/Cliente/pagina-cliente', (req, res) => res.render('Cliente/pagina-cliente', { userRole: 'cliente' }));
 app.get('/Empleado/pagina-empleado', esEmpleado, (req, res) => res.render('Empleado/pagina-empleado', { userRole: 'empleado' }));
-app.get('/Empleado/inventario-taller', esEmpleado, (req, res) => res.render('Empleado/Inventario-taller'));
-app.get('/Empleado/ordenes-trabajo', esEmpleado, (req, res) => res.render('Empleado/ordenes-trabajo'));
-app.get('/Empleado/historial-clientes', esEmpleado, (req, res) => res.render('Empleado/historial-clientes'));
+app.get('/Empleado/inventario-taller', esEmpleado, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM inventario ORDER BY producto ASC');
+        res.render('Empleado/Inventario-taller', { productos: result.rows });
+    } catch (err) {
+        console.error(err);
+        res.render('Empleado/Inventario-taller', { productos: [] });
+    }
+});
+app.get('/Empleado/ordenes-trabajo', esEmpleado, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM ordenes_trabajo ORDER BY fecha_entrada DESC');
+        res.render('Empleado/ordenes-trabajo', { ordenes: result.rows });
+    } catch (err) {
+        console.error(err);
+        res.render('Empleado/ordenes-trabajo', { ordenes: [] });
+    }
+});
+app.get('/Empleado/historial-clientes', esEmpleado, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM historial_clientes ORDER BY fecha_reparacion DESC');
+        res.render('Empleado/historial-clientes', { historial: result.rows });
+    } catch (err) {
+        console.error(err);
+        res.render('Empleado/historial-clientes', { historial: [] });
+    }
+});
 app.get('/Empleado/configuracion', esEmpleado, (req, res) => res.render('Empleado/configuracion'));
 
-// Rutas POST
-app.post('/cliente-inicio', (req, res) => res.redirect('/Cliente/pagina-cliente'));
-app.post('/empleado-inicio', (req, res) => res.redirect('/Empleado/pagina-empleado'));
-
-app.post('/cliente-registro', async (req, res) => {
-    console.log("Datos recibidos en /cliente-registro:", req.body);
-    const { nombre, correo, password } = req.body;
+// --- RUTAS POST ---
+app.post('/cliente-inicio', async (req, res) => {
+    const { correo, password } = req.body;
 
     try {
-        const queryText = 'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1, $2, $3, $4)';
-        const values = [nombre, correo, password, 'cliente'];
+        const result = await pool.query(
+            'SELECT * FROM usuarios WHERE correo = $1 AND password = $2 AND rol = $3',
+            [correo, password, 'cliente']
+        );
 
-        await pool.query(queryText, values);
+        if (result.rows.length === 0) {
+            return res.status(401).send('Correo o contraseña incorrectos.');
+        }
 
-        console.log(`Usuario ${nombre} registrado con éxito`);
-        res.redirect('/cliente-inicio');
-    } catch (err) {
-        console.error('Error al insertar usuario:', err.message);
-        res.status(500).send("Error al registrar usuario. Posiblemente el correo ya existe.");
+        const cliente = result.rows[0];
+
+        req.session.usuario = {
+            id: cliente.id,
+            nombre: cliente.nombre,
+            correo: cliente.correo,
+            rol: cliente.rol
+        };
+
+        res.redirect('/Cliente/pagina-cliente');
+    } catch (error) {
+        console.error('Error al iniciar sesión como cliente:', error.message);
+        res.status(500).send('Error interno al iniciar sesión.');
+    }
+});
+app.post('/empleado-inicio', async (req, res) => {
+    const { correo, password, id } = req.body; // Asegúrate de que el formulario envíe 'id_rol' correctamente
+
+        try {
+            const result = await pool.query(
+            'SELECT * FROM usuarios WHERE correo = $1 AND password = $2 AND id_rol = $3 AND rol = $4',
+            [correo, password, id, 'empleado']
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).send('Credenciales incorrectas o no tienes permisos de empleado.');
+        }
+
+        const empleado = result.rows[0];
+
+        req.session.usuario = {
+            id: empleado.id,
+            nombre: empleado.nombre,
+            correo: empleado.correo,
+            rol: empleado.rol,
+            id_rol: empleado.id_rol
+        };
+
+        res.redirect('/Empleado/pagina-empleado');
+    } catch (error) {
+        console.error('Error al iniciar sesión como empleado:', error.message);
+        res.status(500).send('Error interno al iniciar sesión.');
     }
 });
 
-app.post('/empleado-registro', async (req, res) => {
+app.post('/cliente-registro', async (req, res) => {
     const { nombre, correo, password } = req.body;
+    try {
+        await pool.query(
+            'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1, $2, $3, $4)',
+            [nombre, correo, password, 'cliente']
+        );
+        res.redirect('/cliente-inicio');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error en registro.");
+    }
+});
+
+// REGISTRO DE EMPLEADO - AQUÍ ESTABA EL ERROR
+app.post('/empleado-registro', async (req, res) => {
+    // Aseguramos que las variables del formulario coincidan con las de JS
+    const { nombre, correo, password } = req.body;
+    
+    // Generación del ID único
     const uniqueId = `EMP-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
     try {
+        // Guardamos en la base de datos
         await pool.query(
             'INSERT INTO usuarios (nombre, correo, password, rol, id_rol) VALUES ($1, $2, $3, $4, $5)',
             [nombre, correo, password, 'empleado', uniqueId]
         );
 
-        // CONFIGURACIÓN DEL CORREO (CORREGIDA)
+        // CONFIGURACIÓN DEL MENSAJE (Usa estrictamente la variable 'correo')
         const mailOptions = {
             from: '"Carrocerías Sandoval" <carroceriassandoval1968@gmail.com>',
-            to: correo, // Antes decía email, por eso fallaba
+            to: correo, // No uses 'email', usa 'correo' que es la que viene de req.body
             subject: 'Tu ID de Empleado - Acceso Exclusivo',
             html: `
                 <h1>Bienvenido al equipo, ${nombre}</h1>
                 <p>Se ha creado tu cuenta de empleado exitosamente.</p>
                 <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
-                <p>Guarda este ID, ya que será necesario para funciones administrativas.</p>
+                <p>Guarda este ID para funciones administrativas.</p>
             `
         };
 
+        // Enviamos el correo
         await transporter.sendMail(mailOptions);
-        
         res.render('empleado-inicio', { mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.' });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error en registro empleado:", error.message);
         res.status(500).send('Error al registrar empleado.');
-    }
-});
-
-// Ejemplo para Servicios
-app.get('/cliente/servicios', async (req, res) => {
-    try {
-        const query = 'SELECT * FROM servicios';
-        const result = await pool.query(query);
-        res.render('Cliente/servicios', { servicios: result.rows || [] });
-    } catch (err) {
-        console.error(err);
-        res.render('Cliente/servicios', { servicios: [] });
-    }
-});
-
-// Ejemplo para Trabajos
-app.get('/cliente/trabajos', async (req, res) => {
-    try {
-        const clienteId = req.session.usuarioId; 
-        const query = 'SELECT * FROM trabajos WHERE cliente_id = $1';
-        const result = await pool.query(query, [clienteId]);
-        res.render('Cliente/trabajos', { trabajos: result.rows || [] });
-    } catch (err) {
-        console.error(err);
-        res.render('Cliente/trabajos', { trabajos: [] });
     }
 });
 

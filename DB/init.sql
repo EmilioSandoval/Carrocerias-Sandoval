@@ -24,7 +24,7 @@ CREATE TABLE servicios (
 );
 
 -- Tabla para los trabajos (órdenes de reparación) de clientes específicos
-CREATE TABLE trabajos-taller (
+CREATE TABLE trabajos_taller (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER REFERENCES usuarios(id), -- Asumiendo que tienes una tabla usuarios
     vehiculo_modelo VARCHAR(100),
@@ -40,4 +40,28 @@ CREATE TABLE IF NOT EXISTS equipo (
     puesto VARCHAR(50),
     telefono VARCHAR(20),
     foto_url TEXT
+);
+CREATE TABLE IF NOT EXISTS inventario (
+    id SERIAL PRIMARY KEY,
+    producto VARCHAR(100) NOT NULL,
+    categoria VARCHAR(50), -- 'Pintura', 'Refacción', 'Herramienta'
+    cantidad INTEGER DEFAULT 0,
+    unidad_medida VARCHAR(20), -- 'Litros', 'Piezas', 'Paquetes'
+    ultima_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS ordenes_trabajo (
+    id SERIAL PRIMARY KEY,
+    vehiculo_modelo VARCHAR(100) NOT NULL,
+    placas VARCHAR(20),
+    cliente_nombre VARCHAR(100),
+    descripcion_falla TEXT,
+    estado VARCHAR(50) DEFAULT 'Pendiente', -- 'Pendiente', 'En Pintura', 'Armado', 'Listo'
+    fecha_entrada DATE DEFAULT CURRENT_DATE
+);
+CREATE TABLE IF NOT EXISTS historial_clientes (
+    id SERIAL PRIMARY KEY,
+    cliente_nombre VARCHAR(100) NOT NULL,
+    vehiculo_modelo VARCHAR(100),
+    fecha_reparacion DATE,
+    descripcion_reparacion TEXT
 );
