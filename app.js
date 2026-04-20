@@ -287,5 +287,19 @@ app.get('/Cliente/trabajos/:slug', (req, res) => {
 
     res.render('Cliente/detalle-trabajo', { trabajo });
 });
+app.post('/enviar-cotizacion', (req, res) => {
+    const { servicio, detalles } = req.body;
+    const clienteId = req.session.usuarioId; // Asumiendo que el cliente inició sesión
+
+    const query = 'INSERT INTO cotizaciones (cliente_id, servicio, detalles, estado) VALUES ($1, $2, $3, $4)';
+    pool.query(query, [clienteId, servicio, detalles, 'Pendiente'], (err, result) => {
+        if (err) {
+            console.error(err);
+            res.send("Error al enviar la cotización");
+        } else {
+            res.redirect('/pagina-cliente'); // Redirigir al perfil del cliente
+        }
+    });
+});
 
 app.listen(3000, () => console.log('Servidor en http://localhost:3000'));

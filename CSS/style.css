@@ -270,6 +270,27 @@ p {
 .btn-perfil-eliminar:hover {
     background-color: #c0392b;
 }
+.btn-cotizar {
+    width: 100%;
+    background-color: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    padding: 18px; /* Un poco más alto para que sea fácil de tocar */
+    border-radius: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+    font-size: 1rem;
+    display: block;
+    text-align: center;
+}
+.btn-cotizar:hover {
+    transform: translateY(-10px);
+    border-color: var(--acento-amarillo);
+    box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2);
+}
 .trabajo-card, .encargado-card {
     background-color: var(--fondo-tarjeta);
     border-radius: 12px;
@@ -536,6 +557,18 @@ p {
     color: #ffcc00;
     font-weight: 700;
     text-decoration: none;
+}
+.cotizacion-form {
+    background: #13202c;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    transition: transform .3s ease, box-shadow .3s ease;
+    text-align: center;
+    padding: 135px;
+    font-weight: 700;
+    text-decoration: none;
+    display: block;
 }
 /* --- MEDIA QUERIES (AJUSTES MÓVILES) --- */
 @media screen and (max-width: 768px) {
