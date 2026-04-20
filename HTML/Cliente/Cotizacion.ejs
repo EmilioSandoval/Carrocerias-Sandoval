@@ -32,40 +32,29 @@
     </header>
 
    <main class="main">
-    <div class="inventory-container">
-    <h2>Inventario del Taller</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Descripción</th>
-                <th>Stock</th>
-                <th>Precio</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% materiales.forEach(item => { %>
-                <tr>
-                    <td><%= item.nombre %></td>
-                    <td><%= item.descripcion %></td>
-                    <td>
-                        <span class="badge <%= item.cantidad <= 5 ? 'bg-danger' : 'bg-success' %>">
-                            <%= item.cantidad %>
-                        </span>
-                    </td>
-                    <td>$<%= item.precio %></td>
-                    <td>
-                        <button class="btn-edit" onclick="editarMaterial('<%= item.id %>')">✎</button>
-                        <form action="/empleado/inventario/eliminar/<%= item.id %>" method="POST" style="display:inline;">
-                            <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar material?')">🗑</button>
-                        </form>
-                    </td>
-                </tr>
-            <% }) %>
-        </tbody>
-    </table>
-</div>
+    <div class="cotizacion-form">
+        <h3>Solicitar Cotización</h3>
+        <form action="/cliente/cotizacion/solicitar" method="POST">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" name="correo" required>
+            </div>
+            <div class="form-group"></div>
+                <label>Tipo de Servicio</label>
+                <select name="servicio" required>
+                    <option value="">Selecciona un servicio</option>
+                    <option value="conversiones">Conversiones</option>
+                    <option value="interiores">Interiores</option>
+                    <option value="pintura">Pintura</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-save">Solicitar Cotización</button>
+        </form>
+    </div>
 </main>
 
     <footer class="pie_de_pagina">

@@ -32,31 +32,25 @@
     </header>
 
    <main class="main">
-    <section class="seccion-empleado">
-        <div class="container">
-            <h1 class="main-title">Panel de Control</h1>
-            <p class="tagline">GESTIÓN INTERNA DE OPERACIONES</p>
-
-            <div class="menu-options">
-                <a href="/Empleado/ordenes-trabajo" class="btn-menu">
-                    <i class="ri-file-list-3-line"></i>
-                    <span>Órdenes de Trabajo</span>
-                </a>
-                <a href="/Empleado/historial-clientes" class="btn-menu">
-                    <i class="ri-history-line"></i>
-                    <span>Historial de Clientes</span>
-                </a>
-                <a href="/Empleado/inventario-taller" class="btn-menu">
-                    <i class="ri-tools-line"></i>
-                    <span>Inventario de Taller</span>
-                </a>
-                <a href="/Empleado/configuracion" class="btn-menu">
-                    <i class="ri-settings-4-line"></i>
-                    <span>Configuración</span>
-                </a>
-            </div>
+    <div class="settings-form">
+    <h3>Configuración de Perfil</h3>
+    <form action="/empleado/configuracion/guardar" method="POST">
+        <div class="form-group">
+            <label>Nombre de Usuario</label>
+            <input type="text" name="nombre" value="<%= usuario.nombre %>" required>
         </div>
-    </section>
+        <div class="form-group">
+            <label>Correo Electrónico</label>
+            <input type="email" value="<%= usuario.correo %>" disabled>
+            <small>El correo no puede ser modificado.</small>
+        </div>
+        <div class="form-group">
+            <label>Nueva Contraseña</label>
+            <input type="password" name="newPassword" placeholder="Dejar en blanco para mantener actual">
+        </div>
+        <button type="submit" class="btn-save">Actualizar Datos</button>
+    </form>
+</div>
 </main>
 
     <footer class="pie_de_pagina">

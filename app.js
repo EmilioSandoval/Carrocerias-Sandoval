@@ -68,6 +68,7 @@ app.get('/Cliente/servicios', (req, res) => res.render('Cliente/servicios'));
 app.get('/Cliente/trabajos', (req, res) => res.render('Cliente/trabajos'));
 app.get('/Cliente/contactos', (req, res) => res.render('Cliente/contactos'));
 app.get('/Cliente/perfil', (req, res) => res.render('Cliente/perfil'));
+app.get('/Cliente/Cotizacion', (req, res) => res.render('Cliente/Cotizacion'));
 app.get('/Cliente/pagina-cliente', (req, res) => res.render('Cliente/pagina-cliente', { userRole: 'cliente' }));
 app.get('/Empleado/pagina-empleado', esEmpleado, (req, res) => res.render('Empleado/pagina-empleado', { userRole: 'empleado' }));
 app.get('/Empleado/inventario-taller', esEmpleado, async (req, res) => {
@@ -129,8 +130,7 @@ app.post('/cliente-inicio', async (req, res) => {
     }
 });
 app.post('/empleado-inicio', async (req, res) => {
-    const { correo, password, id } = req.body; // Asegúrate de que el formulario envíe 'id_rol' correctamente
-
+    const { correo, password, id } = req.body; 
         try {
             const result = await pool.query(
             'SELECT * FROM usuarios WHERE correo = $1 AND password = $2 AND id_rol = $3 AND rol = $4',
@@ -172,25 +172,20 @@ app.post('/cliente-registro', async (req, res) => {
     }
 });
 
-// REGISTRO DE EMPLEADO - AQUÍ ESTABA EL ERROR
 app.post('/empleado-registro', async (req, res) => {
-    // Aseguramos que las variables del formulario coincidan con las de JS
     const { nombre, correo, password } = req.body;
     
-    // Generación del ID único
     const uniqueId = `EMP-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
     try {
-        // Guardamos en la base de datos
         await pool.query(
             'INSERT INTO usuarios (nombre, correo, password, rol, id_rol) VALUES ($1, $2, $3, $4, $5)',
             [nombre, correo, password, 'empleado', uniqueId]
         );
 
-        // CONFIGURACIÓN DEL MENSAJE (Usa estrictamente la variable 'correo')
         const mailOptions = {
             from: '"Carrocerías Sandoval" <carroceriassandoval1968@gmail.com>',
-            to: correo, // No uses 'email', usa 'correo' que es la que viene de req.body
+            to: correo, 
             subject: 'Tu ID de Empleado - Acceso Exclusivo',
             html: `
                 <h1>Bienvenido al equipo, ${nombre}</h1>
@@ -200,7 +195,6 @@ app.post('/empleado-registro', async (req, res) => {
             `
         };
 
-        // Enviamos el correo
         await transporter.sendMail(mailOptions);
         res.render('empleado-inicio', { mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.' });
 

@@ -32,32 +32,30 @@
     </header>
 
    <main class="main">
-    <section class="seccion-empleado">
-        <div class="container">
-            <h1 class="main-title">Panel de Control</h1>
-            <p class="tagline">GESTIÓN INTERNA DE OPERACIONES</p>
-
-            <div class="menu-options">
-                <a href="/Empleado/ordenes-trabajo" class="btn-menu">
-                    <i class="ri-file-list-3-line"></i>
-                    <span>Órdenes de Trabajo</span>
-                </a>
-                <a href="/Empleado/historial-clientes" class="btn-menu">
-                    <i class="ri-history-line"></i>
-                    <span>Historial de Clientes</span>
-                </a>
-                <a href="/Empleado/inventario-taller" class="btn-menu">
-                    <i class="ri-tools-line"></i>
-                    <span>Inventario de Taller</span>
-                </a>
-                <a href="/Empleado/configuracion" class="btn-menu">
-                    <i class="ri-settings-4-line"></i>
-                    <span>Configuración</span>
-                </a>
-            </div>
-        </div>
-    </section>
-</main>
+        <div class="history-section">
+    <input type="text" id="clientSearch" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
+    <table class="table" id="tableClientes">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Contacto</th>
+                <th>Último Servicio</th>
+                <th>Total Visitas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% clientes.forEach(cliente => { %>
+                <tr>
+                    <td><strong><%= cliente.nombre %></strong></td>
+                    <td><%= cliente.correo %><br><small><%= cliente.telefono %></small></td>
+                    <td><%= cliente.ultimo_servicio || 'N/A' %></td>
+                    <td><span class="count-badge"><%= cliente.total_ordenes %></span></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+    </main>
 
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
