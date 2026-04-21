@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Cotizaciones | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="/Cliente/pagina-cliente" class="nav__logo">
+                <span>Carrocerias Sandoval</span>
+            </a>
+            <div class="nav__toggle" id="nav-toggle">
+                <i class="ri-menu-line"></i>
+            </div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="/Cliente/servicios" class="nav__link">Servicios</a></li>
+                    <li class="nav__item"><a href="/Cliente/trabajos" class="nav__link">Trabajos</a></li>
+                    <li class="nav__item"><a href="/Cliente/contactos" class="nav__link">Contacto</a></li>
+                    <li class="nav__item"><a href="/Cliente/perfil" class="nav__link">Perfil</a></li>
+                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
+                </ul>
+                <div class="nav__close" id="nav-close">
+                    <i class="ri-close-line"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="seccion-cliente">
+            <div class="container">
+                <h1 class="main-title">Mis Cotizaciones</h1>
+                <p class="tagline">Historial de cotizaciones guardadas</p>
+
+                <% if (!cotizaciones || cotizaciones.length === 0) { %>
+                    <p>No tienes cotizaciones guardadas todavía.</p>
+                <% } else { %>
+                    <div class="cotizaciones-grid">
+                        <% cotizaciones.forEach(cotizacion => { %>
+                            <a href="/Cliente/mis-cotizaciones/<%= cotizacion.id %>" class="cotizacion-card">
+                                <h3>Cotización #<%= cotizacion.id %></h3>
+                                <p><strong>Unidad:</strong> <%= cotizacion.unidad %></p>
+                                <p><strong>Total:</strong> $<%= cotizacion.total %></p>
+                                <p><strong>Fecha:</strong> <%= new Date(cotizacion.fecha).toLocaleDateString() %></p>
+                            </a>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+
+    <script src="/JS/index.js"></script>
+</body>
+</html>

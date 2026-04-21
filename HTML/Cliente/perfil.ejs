@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Mi Perfil | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header" id="header">
         <nav class="navegador">
-            <a href="#" class="nav__logo">
+            <a href="/Cliente/pagina-cliente" class="nav__logo">
                 <span>Carrocerias Sandoval</span>
             </a>
             <div class="nav__toggle" id="nav-toggle">
@@ -18,11 +19,11 @@
             </div>
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="servicios" class="nav__link">Servicios</a></li>
-                    <li class="nav__item"><a href="trabajos" class="nav__link">Trabajos</a></li>
-                    <li class="nav__item"><a href="contactos" class="nav__link">Contacto</a></li>
-                    <li class="nav__item"><a href="perfil" class="nav__link">Perfil</a></li>
-                    <li class="nav__item"><a href="/" class="nav__link">Cerrar Sesión</a></li>
+                    <li class="nav__item"><a href="/Cliente/servicios" class="nav__link">Servicios</a></li>
+                    <li class="nav__item"><a href="/Cliente/trabajos" class="nav__link">Trabajos</a></li>
+                    <li class="nav__item"><a href="/Cliente/contactos" class="nav__link">Contacto</a></li>
+                    <li class="nav__item"><a href="/Cliente/perfil" class="nav__link">Perfil</a></li>
+                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
@@ -30,33 +31,74 @@
             </div>
         </nav>
     </header>
-<main class="main">
-    <section class="seccion-cliente">
-        <div class="container">
 
-            <h1 class="main-title">Información del perfil</h1>
-            <p class="tagline">Tus datos</p>
+    <main class="main">
+        <section class="seccion-cliente">
+            <div class="container">
+                <h1 class="main-title">Mi Perfil</h1>
+                <p class="tagline">Consulta y administra tus datos</p>
 
-            <div class="contacto-perfil">
-                <div class="perfil-card">
-                    <img src="../IMAGENES/Encargado1.jpg" alt="Foto de perfil" class="foto-perfil-cliente">
+                <div class="perfil-card perfil-card-cliente">
+                    <div class="perfil-foto-box">
+                        <img src="<%= cliente.foto_url || '/IMAGENES/default-user.png' %>" class="foto-perfil-cliente" alt="foto-perfil">
+                    </div>
+
                     <div class="cliente-datos">
-
-                        <p><strong>Puesto:</strong> Director de Producción</p>
-                        <p><i class="ri-phone-fill"></i> +52 33 31 05 8247</p>
-                        <p><i class="ri-mail-fill"></i> carrocerias-sandoval@hotmail.com</p>
+                        <h2><%= cliente.nombre %></h2>
+                        <p><i class="ri-mail-fill"></i> <%= cliente.correo %></p>
+                        <p><i class="ri-calendar-line"></i> Registro: <%= new Date(cliente.fecha_registro).toLocaleDateString() %></p>
+                        <p><i class="ri-phone-fill"></i> Teléfono: <%= cliente.telefono || 'No registrado' %></p>
                     </div>
                 </div>
-            </div>
-            <button type="submit" class="btn-perfil-editar">
-                        Editar Perfil
+
+               <form id="form-editar-perfil">
+                <div class="input-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" value="<%= cliente.nombre %>" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="correo">Correo</label>
+                    <input type="email" id="correo" value="<%= cliente.correo %>" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" value="<%= cliente.telefono || '' %>" placeholder="Opcional">
+                </div>
+
+                <div class="perfil-acciones">
+                    <button type="button" class="btn-perfil-editar" onclick="editarPerfil()">
+                        Guardar cambios
                     </button>
-                    <button type="submit" class="btn-perfil-eliminar">
+
+                    <button type="button" class="btn-perfil-eliminar" onclick="eliminarPerfil()">
                         Eliminar Perfil
                     </button>
-        </div>
-    </section>
-</main>
+                </div>
+            </form>
+
+            <form id="form-foto" enctype="multipart/form-data">
+
+                <label for="foto" class="label-foto">
+                    <i class="ri-image-add-line"></i><br>
+                    Seleccionar imagen
+                </label>
+
+                <input type="file" id="foto" name="foto" accept="image/*">
+
+                <span id="nombre-archivo" class="nombre-archivo">
+                    Ningún archivo seleccionado
+                </span>
+
+                <button type="button" class="btn-subir-foto" onclick="subirFoto()">
+                    Subir Foto
+                </button>
+
+            </form>
+        </section>
+    </main>
+
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
@@ -74,12 +116,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
 </body>
 </html>

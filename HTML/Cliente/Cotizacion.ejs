@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Cotizador en Línea | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header" id="header">
         <nav class="navegador">
-            <a href="#" class="nav__logo">
+            <a href="/Cliente/pagina-cliente" class="nav__logo">
                 <span>Carrocerias Sandoval</span>
             </a>
             <div class="nav__toggle" id="nav-toggle">
@@ -18,11 +19,11 @@
             </div>
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="ordenes-trabajo" class="nav__link">Trabajo</a></li>
-                    <li class="nav__item"><a href="historial-clientes" class="nav__link">Historial</a></li>
-                    <li class="nav__item"><a href="Inventario-taller" class="nav__link">Inventario</a></li>
-                    <li class="nav__item"><a href="configuracion" class="nav__link">Configuración</a></li>
-                    <li class="nav__item"><a href="/" class="nav__link">Cerrar Sesión</a></li>
+                    <li class="nav__item"><a href="/Cliente/servicios" class="nav__link">Servicios</a></li>
+                    <li class="nav__item"><a href="/Cliente/trabajos" class="nav__link">Trabajos</a></li>
+                    <li class="nav__item"><a href="/Cliente/contactos" class="nav__link">Contacto</a></li>
+                    <li class="nav__item"><a href="/Cliente/perfil" class="nav__link">Perfil</a></li>
+                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
@@ -31,31 +32,104 @@
         </nav>
     </header>
 
-   <main class="main">
-    <div class="cotizacion-form">
-        <h3>Solicitar Cotización</h3>
-        <form action="/cliente/cotizacion/solicitar" method="POST">
-            <div class="form-group">
-                <label>Nombre Completo</label>
-                <input type="text" name="nombre" required>
+    <main class="main">
+        <div class="cotizacion-container cotizacion-carrito">
+            <h2 class="section-title">Cotizador en Línea</h2>
+            <p class="section-subtitle">
+                Agrega uno o varios servicios para obtener un total estimado.
+            </p>
+
+            <form class="cotizacion-form" id="formCotizacion" onsubmit="event.preventDefault()">
+                <div class="form-section">
+    <p class="form-section-title">Información del Vehículo</p>
+
+    <div class="input-group">
+    <label for="marca">Marca del Autobús</label>
+    <select id="marca" required>
+        <option value="" selected disabled>Selecciona una marca</option>
+    </select>
+</div>
+
+<div class="input-group">
+    <label for="modelo">Modelo</label>
+    <select id="modelo" required>
+        <option value="" selected disabled>Selecciona primero una marca</option>
+    </select>
+</div>
+
+<div class="input-group">
+    <label for="tipoUnidad">Tipo de Unidad</label>
+    <input type="text" id="tipoUnidad" readonly placeholder="Se llenará automáticamente">
+</div>
+</div>
+
+                <div class="form-section">
+                    <p class="form-section-title">Selecciona un servicio</p>
+
+                    <div class="input-group">
+                        <label for="servicio">Tipo de Servicio</label>
+                        <select id="servicio">
+                            <option value="" disabled selected>Selecciona un servicio</option>
+                            <option value="12000" data-nombre="Pintura General">Pintura General - $12,000</option>
+                            <option value="2500" data-nombre="Pulido y Encerado">Pulido y Encerado - $2,500</option>
+                            <option value="5000" data-nombre="Reparación de Golpe (Leve)">Reparación de Golpe (Leve) - $5,000</option>
+                            <option value="1500" data-nombre="Pintura de Fascia">Pintura de Fascia - $1,500</option>
+                            <option value="600000" data-nombre="Conversión">Conversión - $600,000</option>
+                            <option value="8500" data-nombre="Interiores">Interiores - $8,500</option>
+                            <option value="10000" data-nombre="Carrocería">Carrocería - $10,000</option>
+                            <option value="7000" data-nombre="Restauración">Restauración - $7,000</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="cantidad">Cantidad</label>
+                        <input type="number" id="cantidad" min="1" value="1">
+                    </div>
+
+                    <button type="button" class="btn-calcular" onclick="agregarServicio()">
+                        Agregar a la cotización
+                    </button>
+                </div>
+            </form>
+
+            <div class="resultado-card carrito-resultado" id="resultado-cotizacion" style="display:block;">
+                <div class="resultado-content">
+                    <p class="resultado-header">Resumen de Cotización</p>
+
+                    <div id="lista-servicios" class="lista-servicios">
+                        <p class="sin-servicios">No has agregado servicios todavía.</p>
+                    </div>
+
+                    <hr class="divider">
+
+                    <div class="totales-cotizacion">
+                        <p class="total-linea">
+                            <span>Total estimado:</span>
+                            <strong id="precio-monto" class="precio-estimado">$0.00</strong>
+                        </p>
+                    </div>
+
+                    <p class="nota-aclaratoria">
+                        * Esta es una estimación basada en precios base. El precio final puede variar
+                        según inspección física, materiales y alcance real del trabajo.
+                    </p>
+
+                    <div class="acciones-cotizacion">
+                        <button type="button" class="btn-secundario" onclick="vaciarCotizacion()">
+                            Vaciar cotización
+                        </button>
+                        <button type="button" class="btn-calcular" onclick="guardarCotizacion()">
+                            Guardar cotización
+                        </button>
+
+                        <a id="link-whatsapp" href="#" target="_blank" class="btn-whatsapp">
+                            <i class="ri-whatsapp-line"></i> Enviar cotización por WhatsApp
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Correo Electrónico</label>
-                <input type="email" name="correo" required>
-            </div>
-            <div class="form-group"></div>
-                <label>Tipo de Servicio</label>
-                <select name="servicio" required>
-                    <option value="">Selecciona un servicio</option>
-                    <option value="conversiones">Conversiones</option>
-                    <option value="interiores">Interiores</option>
-                    <option value="pintura">Pintura</option>
-                </select>
-            </div>
-            <button type="submit" class="btn-save">Solicitar Cotización</button>
-        </form>
-    </div>
-</main>
+        </div>
+    </main>
 
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
@@ -80,6 +154,6 @@
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
 </body>
 </html>

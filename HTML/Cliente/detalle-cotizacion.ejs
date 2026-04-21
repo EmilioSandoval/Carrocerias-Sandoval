@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Cotización | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="main">
+        <section class="seccion-cliente">
+            <div class="container">
+                <h1 class="main-title">Cotización #<%= cotizacion.id %></h1>
+                <p><strong>Unidad:</strong> <%= cotizacion.unidad %></p>
+                <p><strong>Fecha:</strong> <%= new Date(cotizacion.fecha).toLocaleDateString() %></p>
+                <p><strong>Total:</strong> $<%= cotizacion.total %></p>
+
+                <div class="detalle-cotizacion-box">
+                    <h2>Servicios</h2>
+                    <% detalle.forEach(item => { %>
+                        <div class="detalle-item">
+                            <p><strong><%= item.servicio %></strong></p>
+                            <p>Cantidad: <%= item.cantidad %></p>
+                            <p>Subtotal: $<%= item.subtotal %></p>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <a href="/Cliente/mis-cotizaciones" class="btn-volver">← Volver</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

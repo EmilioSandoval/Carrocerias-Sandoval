@@ -6,11 +6,12 @@
     <title>Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
     <link rel="stylesheet" href="../CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header" id="header">
         <nav class="navegador">
-            <a href="#" class="nav__logo">
+            <a href="/Empleado/pagina-empleado" class="nav__logo">
                 <span>Carrocerias Sandoval</span>
             </a>
             <div class="nav__toggle" id="nav-toggle">
@@ -18,11 +19,11 @@
             </div>
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="ordenes-trabajo" class="nav__link">Trabajo</a></li>
-                    <li class="nav__item"><a href="historial-clientes" class="nav__link">Historial</a></li>
-                    <li class="nav__item"><a href="Inventario-taller" class="nav__link">Inventario</a></li>
-                    <li class="nav__item"><a href="configuracion" class="nav__link">Configuración</a></li>
-                    <li class="nav__item"><a href="/" class="nav__link">Cerrar Sesión</a></li>
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
@@ -34,16 +35,20 @@
    <main class="main">
     <div class="orders-grid">
     <% ordenes.forEach(orden => { %>
-        <div class="order-card status-<%= orden.estado.toLowerCase().replace(' ', '-') %>">
+        <div class="order-card status-<%= (orden.estado || '').toLowerCase().replace(/\s+/g, '-') %>">
             <div class="order-header">
                 <h3>Orden #<%= orden.id %></h3>
                 <span class="badge"><%= orden.estado %></span>
             </div>
+
             <div class="order-body">
                 <p><strong>Cliente:</strong> <%= orden.cliente_nombre %></p>
-                <p><strong>Servicio:</strong> <%= orden.servicio %></p>
-                <p><strong>Fecha Prometida:</strong> <%= new Date(orden.fecha_entrega).toLocaleDateString() %></p>
+                <p><strong>Vehículo:</strong> <%= orden.vehiculo_modelo %></p>
+                <p><strong>Placas:</strong> <%= orden.placas %></p>
+                <p><strong>Falla:</strong> <%= orden.descripcion_falla %></p>
+                <p><strong>Fecha de entrada:</strong> <%= new Date(orden.fecha_entrada).toLocaleDateString() %></p>
             </div>
+
             <div class="order-actions">
                 <form action="/empleado/ordenes/actualizar-estado" method="POST">
                     <input type="hidden" name="id_orden" value="<%= orden.id %>">

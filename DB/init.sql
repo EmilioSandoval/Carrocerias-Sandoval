@@ -65,3 +65,13 @@ CREATE TABLE IF NOT EXISTS historial_clientes (
     fecha_reparacion DATE,
     descripcion_reparacion TEXT
 );
+CREATE TABLE IF NOT EXISTS marca_autobus (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE
+);
+CREATE TABLE IF NOT EXISTS modelos_autobus (
+    id SERIAL PRIMARY KEY,
+    marca_id INTEGER REFERENCES marca_autobus(id) ON DELETE CASCADE,
+    nombre VARCHAR(100) NOT NULL,
+    tipo_unidad VARCHAR(100) NOT NULL
+);
