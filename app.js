@@ -418,7 +418,7 @@ app.post('/cliente-registro', async (req, res) => {
             [nombre, correo, hashedPassword, 'cliente']
         );
         res.redirect('/cliente-inicio');
-        console.log(`Nuevo cliente registrado: ${nombre} (${correo})`);
+        res.status(200).send('Registro exitoso. Ahora puedes iniciar sesión.');
     } catch (err) {
         console.error(err);
         res.status(500).send("Error en registro.");
