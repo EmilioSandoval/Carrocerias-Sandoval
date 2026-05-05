@@ -417,8 +417,15 @@ app.post('/cliente-registro', async (req, res) => {
             'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1, $2, $3, $4)',
             [nombre, correo, hashedPassword, 'cliente']
         );
-        res.redirect('/cliente-inicio');
-        res.status(200).send('Registro exitoso. Ahora puedes iniciar sesión.');
+        res.render('cliente-registro', {
+            alert: true,
+            alerttitle: 'Registro exitoso',
+            alerttext: 'Ahora puedes iniciar sesión.',
+            alerticon: 'success',
+            showConfirmButton: false,
+            timer: 3000,
+            ruta: '/cliente-inicio'
+    });
     } catch (err) {
         console.error(err);
         res.status(500).send("Error en registro.");

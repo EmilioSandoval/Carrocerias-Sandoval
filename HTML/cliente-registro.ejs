@@ -36,9 +36,14 @@
                             <input class="inputsR" type="email" id="correo" name="correo" required placeholder="tu@correo.com">
                         </div>
                         
-                        <div class="input-boxReg">
-                            <label for="password"><i class="ri-lock-password-line"></i> Contraseña</label>
-                            <input class="inputsR" type="password" id="password" name="password" required placeholder="Crea una contraseña">
+                        <div class="mb-3 position-relative">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" required>
+                                <button class="btn btn-outline-secondary" type="button" id="btnToggle">
+                                    <i class="bi bi-eye" id="eyeIcon"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div id="password-advise" class="advise-box">
@@ -86,5 +91,20 @@
     </footer>
 
     <script src="../JS/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <% if (typeof alert !== 'undefined') { %>
+        <script>
+            Swal.fire({
+                title: '<%= alerttitle %>',
+                text: '<%= alerttext %>',
+                icon: '<%= alerticon %>',
+                showConfirmButton: <%= showConfirmButton %>,
+                timer: <%= timer %>
+            }).then(() => {
+                window.location.href = '/cliente-inicio';
+            });
+        </script>
+        <% } %>
 </body>
 </html>

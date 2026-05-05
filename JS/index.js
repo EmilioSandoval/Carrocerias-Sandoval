@@ -37,6 +37,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    document.addEventListener('DOMContentLoaded', () => {
+    const btnToggle = document.getElementById('btnToggle');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    if (btnToggle) {
+        btnToggle.addEventListener('click', () => {
+            // Cambiar el tipo de input
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Cambiar el icono (si usas Bootstrap Icons)
+            if (type === 'text') {
+                eyeIcon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        });
+    }
+});
 
     // 2. Control del Menú Móvil
     const navMenu = document.getElementById('nav-menu'),
