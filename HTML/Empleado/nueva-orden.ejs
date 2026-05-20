@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Orden | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="/Empleado/pagina-empleado" class="nav__logo">
+                <span>Carrocerias Sandoval</span>
+            </a>
+            <div class="nav__toggle" id="nav-toggle"><i class="ri-menu-line"></i></div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link active">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
+                </ul>
+                <div class="nav__close" id="nav-close"><i class="ri-close-line"></i></div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="settings-form">
+            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+                <a href="/Empleado/ordenes-trabajo" class="btn-cancelar"><i class="ri-arrow-left-line"></i> Volver</a>
+                <h3>Nueva Orden de Trabajo</h3>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alerta alerta-error"><i class="ri-error-warning-line"></i> <%= error %></div>
+            <% } %>
+
+            <form action="/empleado/ordenes/nueva" method="POST">
+                <div class="form-group">
+                    <label>Nombre del Cliente *</label>
+                    <input type="text" name="cliente_nombre" required placeholder="Nombre completo del cliente">
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo del Vehículo *</label>
+                    <input type="text" name="vehiculo_modelo" required placeholder="Ej. Dina 323">
+                </div>
+
+                <div class="form-group">
+                    <label>Placas *</label>
+                    <input type="text" name="placas" required placeholder="Ej. ABC-123" style="text-transform:uppercase;">
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción de la Falla *</label>
+                    <textarea name="descripcion_falla" required rows="3" placeholder="Describe el problema o trabajo a realizar"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Costo Estimado ($)</label>
+                    <input type="number" name="costo_estimado" min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label>Estado Inicial</label>
+                    <select name="estado">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_proceso">En Proceso</option>
+                    </select>
+                </div>
+
+                <div class="modal-acciones">
+                    <button type="submit" class="btn-save"><i class="ri-save-line"></i> Crear Orden</button>
+                    <a href="/Empleado/ordenes-trabajo" class="btn-cancelar">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+    <script src="/JS/index.js"></script>
+</body>
+</html>

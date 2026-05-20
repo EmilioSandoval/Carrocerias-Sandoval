@@ -1,0 +1,19 @@
+# ─── Variables de entorno (NUNCA subir al repo) ──────────────────
+.env
+.env.local
+.env.production
+
+# ─── Dependencias de Node ─────────────────────────────────────────
+node_modules/
+
+# ─── Archivos subidos por usuarios ───────────────────────────────
+uploads/
+
+# ─── Logs ─────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+
+# ─── Sistema operativo ────────────────────────────────────────────
+.DS_Store
+Thumbs.db

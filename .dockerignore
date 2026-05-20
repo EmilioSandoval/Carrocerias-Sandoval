@@ -1,0 +1,21 @@
+# Dependencias (se instalan dentro del contenedor)
+node_modules/
+
+# Variables de entorno (nunca dentro de la imagen)
+.env
+.env.*
+
+# Uploads de usuarios (se montan como volumen)
+uploads/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

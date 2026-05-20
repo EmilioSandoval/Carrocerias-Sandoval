@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Orden | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="/Empleado/pagina-empleado" class="nav__logo"><span>Carrocerias Sandoval</span></a>
+            <div class="nav__toggle" id="nav-toggle"><i class="ri-menu-line"></i></div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo"   class="nav__link active">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller"  class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion"      class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout"                      class="nav__link">Cerrar Sesión</a></li>
+                </ul>
+                <div class="nav__close" id="nav-close"><i class="ri-close-line"></i></div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="settings-form">
+            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+                <a href="/Empleado/ordenes-trabajo" class="btn-cancelar"><i class="ri-arrow-left-line"></i> Volver</a>
+                <h3>Editar Orden #<%= orden.id %></h3>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alerta alerta-error"><i class="ri-error-warning-line"></i> <%= error %></div>
+            <% } %>
+
+            <form action="/empleado/ordenes/editar/<%= orden.id %>" method="POST">
+                <div class="form-group">
+                    <label>Nombre del Cliente *</label>
+                    <input type="text" name="cliente_nombre" required value="<%= orden.cliente_nombre || '' %>">
+                </div>
+                <div class="form-group">
+                    <label>Modelo del Vehículo *</label>
+                    <input type="text" name="vehiculo_modelo" required value="<%= orden.vehiculo_modelo %>">
+                </div>
+                <div class="form-group">
+                    <label>Placas *</label>
+                    <input type="text" name="placas" required value="<%= orden.placas || '' %>" style="text-transform:uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>Descripción de la Falla *</label>
+                    <textarea name="descripcion_falla" required rows="3"><%= orden.descripcion_falla || '' %></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Costo Estimado ($)</label>
+                    <input type="number" name="costo_estimado" min="0" step="0.01" value="<%= orden.costo_estimado || 0 %>">
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select name="estado">
+                        <option value="pendiente"  <%= orden.estado === 'pendiente'  ? 'selected' : '' %>>Pendiente</option>
+                        <option value="en_proceso" <%= orden.estado === 'en_proceso' ? 'selected' : '' %>>En Proceso</option>
+                        <option value="terminado"  <%= orden.estado === 'terminado'  ? 'selected' : '' %>>Terminado</option>
+                        <option value="entregado"  <%= orden.estado === 'entregado'  ? 'selected' : '' %>>Entregado</option>
+                        <option value="cancelado"  <%= orden.estado === 'cancelado'  ? 'selected' : '' %>>Cancelado</option>
+                    </select>
+                </div>
+                <div class="modal-acciones">
+                    <button type="submit" class="btn-save"><i class="ri-save-line"></i> Guardar Cambios</button>
+                    <a href="/Empleado/ordenes-trabajo" class="btn-cancelar">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+    <script src="/JS/index.js"></script>
+</body>
+</html>

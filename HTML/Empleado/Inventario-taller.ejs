@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Inventario | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -21,7 +21,7 @@
                 <ul class="nav__list">
                     <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link">Trabajo</a></li>
                     <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
-                    <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link active">Inventario</a></li>
                     <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
                     <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
                 </ul>
@@ -32,66 +32,185 @@
         </nav>
     </header>
 
-   <main class="main">
-    <div class="inventory-container">
-    <h2>Inventario del Taller</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Descripción</th>
-                <th>Stock</th>
-                <th>Precio</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% productos.forEach(item => { %>
-                <tr>
-                    <td><%= item.nombre %></td>
-                    <td><%= item.descripcion %></td>
-                    <td>
-                        <span class="badge <%= item.cantidad <= 5 ? 'bg-danger' : 'bg-success' %>">
-                            <%= item.cantidad %>
-                        </span>
-                    </td>
-                    <td>$<%= item.precio %></td>
-                    <td>
-                        <button class="btn-edit" onclick="editarMaterial('<%= item.id %>')">✎</button>
-                        <form action="/empleado/inventario/eliminar/<%= item.id %>" method="POST" style="display:inline;">
-                            <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar material?')">🗑</button>
-                        </form>
-                    </td>
-                </tr>
-            <% }) %>
-        </tbody>
-    </table>
-</div>
-</main>
+    <main class="main">
+        <div class="inventory-container">
+            <div class="inventory-header">
+                <h2>Inventario del Taller</h2>
+                <button class="btn-nueva-orden" onclick="abrirModalAgregar()">
+                    <i class="ri-add-line"></i> Agregar Producto
+                </button>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alerta alerta-error"><i class="ri-error-warning-line"></i> <%= error %></div>
+            <% } %>
+
+            <% if (!productos || productos.length === 0) { %>
+                <p style="text-align:center; margin-top:2rem;">No hay productos en el inventario.</p>
+            <% } else { %>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Unidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Stock Mínimo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% productos.forEach(item => { %>
+                            <tr>
+                                <td><%= item.producto %></td>
+                                <td>
+                                    <span class="badge <%= item.cantidad <= item.stock_minimo ? 'badge-peligro' : 'badge-ok' %>">
+                                        <%= item.cantidad %>
+                                    </span>
+                                </td>
+                                <td><%= item.unidad || 'pieza' %></td>
+                                <td>$<%= Number(item.precio_unitario || 0).toLocaleString('es-MX') %></td>
+                                <td><%= item.stock_minimo || 0 %></td>
+                                <td>
+                                    <button class="btn-edit" onclick="abrirModalEditar(<%= item.id %>, '<%= item.producto.replace(/'/g, "\\'") %>', <%= item.cantidad %>, '<%= (item.unidad||'pieza').replace(/'/g, "\\'") %>', <%= item.precio_unitario || 0 %>, <%= item.stock_minimo || 0 %>)">
+                                        <i class="ri-edit-line"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick="eliminarProducto(<%= item.id %>)">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+
+        <!-- ── Modal: Agregar producto ── -->
+        <div id="modal-agregar" class="modal-overlay" style="display:none;">
+            <div class="modal-box">
+                <h3>Agregar Producto</h3>
+                <form action="/empleado/inventario/agregar" method="POST">
+                    <div class="form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" name="producto" required placeholder="Ej. Pintura blanca">
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" name="cantidad" min="0" required placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidad</label>
+                        <input type="text" name="unidad" placeholder="pieza, litro, kg...">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Unitario ($)</label>
+                        <input type="number" name="precio_unitario" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Mínimo</label>
+                        <input type="number" name="stock_minimo" min="0" placeholder="5">
+                    </div>
+                    <div class="modal-acciones">
+                        <button type="submit" class="btn-save">Agregar</button>
+                        <button type="button" class="btn-cancelar" onclick="cerrarModales()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── Modal: Editar producto ── -->
+        <div id="modal-editar" class="modal-overlay" style="display:none;">
+            <div class="modal-box">
+                <h3>Editar Producto</h3>
+                <form id="form-editar-producto" method="POST">
+                    <div class="form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" name="producto" id="edit-producto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" name="cantidad" id="edit-cantidad" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unidad</label>
+                        <input type="text" name="unidad" id="edit-unidad">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Unitario ($)</label>
+                        <input type="number" name="precio_unitario" id="edit-precio" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Mínimo</label>
+                        <input type="number" name="stock_minimo" id="edit-stock-min" min="0">
+                    </div>
+                    <div class="modal-acciones">
+                        <button type="submit" class="btn-save">Guardar Cambios</button>
+                        <button type="button" class="btn-cancelar" onclick="cerrarModales()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
 
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
                 <h2>NOSOTROS</h2>
                 <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
-                <p>A través de esta plataforma, buscamos mostrar nuestra trayectoria y los trabajos realizados.</p>
             </div>
-
             <div class="box">
                 <h2>Contáctanos</h2>
                 <div class="redes">
                     <a href="https://www.facebook.com/profile.php?id=61570873678977" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
                     <a href="https://www.instagram.com/carroceriassandoval/" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
-                    <a href="https://www.tiktok.com/@carroceriassandoval?is_from_webapp=1&sender_device=pc" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                    <a href="https://www.tiktok.com/@carroceriassandoval" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
                 </div>
             </div>
         </div>
-        
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
+    <script>
+        function abrirModalAgregar() {
+            document.getElementById('modal-agregar').style.display = 'flex';
+        }
+
+        function abrirModalEditar(id, producto, cantidad, unidad, precio, stockMin) {
+            document.getElementById('edit-producto').value  = producto;
+            document.getElementById('edit-cantidad').value  = cantidad;
+            document.getElementById('edit-unidad').value    = unidad;
+            document.getElementById('edit-precio').value    = precio;
+            document.getElementById('edit-stock-min').value = stockMin;
+            document.getElementById('form-editar-producto').action = '/empleado/inventario/editar/' + id;
+            document.getElementById('modal-editar').style.display = 'flex';
+        }
+
+        function cerrarModales() {
+            document.getElementById('modal-agregar').style.display = 'none';
+            document.getElementById('modal-editar').style.display  = 'none';
+        }
+
+        function eliminarProducto(id) {
+            if (!confirm('¿Eliminar este producto del inventario?')) return;
+            fetch('/empleado/inventario/' + id, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.mensaje || 'Producto eliminado');
+                    window.location.reload();
+                })
+                .catch(() => alert('Error al eliminar el producto'));
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) cerrarModales();
+            });
+        });
+    </script>
 </body>
 </html>

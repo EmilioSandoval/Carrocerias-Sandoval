@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Panel Cliente | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header" id="header">
         <nav class="navegador">
-            <a href="#" class="nav__logo">
+            <a href="/Cliente/pagina-cliente" class="nav__logo">
                 <span>Carrocerias Sandoval</span>
             </a>
             <div class="nav__toggle" id="nav-toggle">
@@ -19,11 +19,11 @@
             </div>
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="servicios" class="nav__link">Servicios</a></li>
-                    <li class="nav__item"><a href="trabajos" class="nav__link">Trabajos</a></li>
-                    <li class="nav__item"><a href="contactos" class="nav__link">Contacto</a></li>
-                    <li class="nav__item"><a href="perfil" class="nav__link">Perfil</a></li>
-                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
+                    <li class="nav__item"><a href="/Cliente/servicios"       class="nav__link">Servicios</a></li>
+                    <li class="nav__item"><a href="/Cliente/trabajos"         class="nav__link">Trabajos</a></li>
+                    <li class="nav__item"><a href="/Cliente/contactos"        class="nav__link">Contacto</a></li>
+                    <li class="nav__item"><a href="/Cliente/perfil"           class="nav__link">Perfil</a></li>
+                    <li class="nav__item"><a href="/logout"                   class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
@@ -31,61 +31,63 @@
             </div>
         </nav>
     </header>
-<main class="main">
-    <section class="seccion-cliente">
-        <section class="seccion-empleado">
-        <div class="container">
-            <h1 class="main-title">Panel de Control</h1>
-            <p class="tagline">GESTIÓN INTERNA DE OPERACIONES</p>
 
-            <div class="menu-options">
-                <a href="/Cliente/servicios" class="btn-menu">
-                    <i class="ri-tools-line"></i>
-                    <span>Servicios</span>
-                </a>
-                <a href="/Cliente/trabajos" class="btn-menu">
-                    <i class="ri-briefcase-4-line"></i>
-                    <span>Trabajos</span>
-                </a>
-                <a href="/Cliente/contactos" class="btn-menu">
-                    <i class="ri-customer-service-2-line"></i>
-                    <span>Contacto</span>
-                </a>
-                <a href="/Cliente/perfil" class="btn-menu">
-                    <i class="ri-user-3-line"></i>
-                    <span>Perfil</span>
-                </a>
-                <a href="/Cliente/mis-cotizaciones" class="btn-menu">
-                    <i class="ri-file-list-3-line"></i>
-                    <span>Mis Cotizaciones</span>
-                </a>
+    <main class="main">
+        <section class="seccion-cliente">
+            <div class="container">
+                <h1 class="main-title">Bienvenido, <%= typeof usuario !== 'undefined' ? usuario.nombre : '' %></h1>
+                <p class="tagline">¿QUÉ DESEAS HACER HOY?</p>
+
+                <div class="menu-options">
+                    <a href="/Cliente/servicios" class="btn-menu">
+                        <i class="ri-tools-line"></i>
+                        <span>Servicios</span>
+                    </a>
+                    <a href="/Cliente/trabajos" class="btn-menu">
+                        <i class="ri-briefcase-4-line"></i>
+                        <span>Trabajos</span>
+                    </a>
+                    <a href="/Cliente/Cotizacion" class="btn-menu">
+                        <i class="ri-calculator-line"></i>
+                        <span>Cotizar</span>
+                    </a>
+                    <a href="/Cliente/mis-cotizaciones" class="btn-menu">
+                        <i class="ri-file-list-3-line"></i>
+                        <span>Mis Cotizaciones</span>
+                    </a>
+                    <a href="/Cliente/contactos" class="btn-menu">
+                        <i class="ri-customer-service-2-line"></i>
+                        <span>Contacto</span>
+                    </a>
+                    <a href="/Cliente/perfil" class="btn-menu">
+                        <i class="ri-user-3-line"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </div>
             </div>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
+
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
                 <h2>NOSOTROS</h2>
                 <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
-                <p>A través de esta plataforma, buscamos mostrar nuestra trayectoria y los trabajos realizados.</p>
             </div>
-
             <div class="box">
                 <h2>Contáctanos</h2>
                 <div class="redes">
                     <a href="https://www.facebook.com/profile.php?id=61570873678977" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
                     <a href="https://www.instagram.com/carroceriassandoval/" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
-                    <a href="https://www.tiktok.com/@carroceriassandoval?is_from_webapp=1&sender_device=pc" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                    <a href="https://www.tiktok.com/@carroceriassandoval" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
                 </div>
             </div>
         </div>
-        
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
 </body>
 </html>

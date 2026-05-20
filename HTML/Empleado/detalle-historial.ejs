@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial <%= clienteNombre %> | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="/Empleado/pagina-empleado" class="nav__logo"><span>Carrocerias Sandoval</span></a>
+            <div class="nav__toggle" id="nav-toggle"><i class="ri-menu-line"></i></div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo"    class="nav__link">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link active">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller"  class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion"      class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout"                      class="nav__link">Cerrar Sesión</a></li>
+                </ul>
+                <div class="nav__close" id="nav-close"><i class="ri-close-line"></i></div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="history-section">
+            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+                <a href="/Empleado/historial-clientes" class="btn-cancelar"><i class="ri-arrow-left-line"></i> Volver</a>
+                <h2>Historial de: <strong><%= clienteNombre %></strong></h2>
+            </div>
+
+            <% if (!ordenes || ordenes.length === 0) { %>
+                <p>No hay órdenes registradas para este cliente.</p>
+            <% } else { %>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Orden #</th>
+                            <th>Vehículo</th>
+                            <th>Placas</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                            <th>Costo</th>
+                            <th>Fecha Entrada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% ordenes.forEach(o => { %>
+                            <tr>
+                                <td><%= o.id %></td>
+                                <td><%= o.vehiculo_modelo %></td>
+                                <td><%= o.placas || 'N/A' %></td>
+                                <td><%= o.descripcion_falla || 'N/A' %></td>
+                                <td>
+                                    <span class="badge badge-<%= o.estado %>">
+                                        <%= o.estado === 'en_proceso' ? 'En Proceso' : (o.estado || '').charAt(0).toUpperCase() + (o.estado || '').slice(1) %>
+                                    </span>
+                                </td>
+                                <td><%= o.costo_estimado ? '$' + Number(o.costo_estimado).toLocaleString('es-MX') : 'N/A' %></td>
+                                <td><%= o.fecha_entrada ? new Date(o.fecha_entrada).toLocaleDateString('es-MX') : 'N/A' %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+    </main>
+
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+    <script src="/JS/index.js"></script>
+</body>
+</html>

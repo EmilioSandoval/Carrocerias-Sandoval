@@ -1151,3 +1151,549 @@ a {
         height: 60px;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECCIÓN EMPLEADO — Estilos completos
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Sección base empleado ─────────────────────────────────────── */
+.seccion-empleado {
+    padding: 3rem 1rem;
+    min-height: 80vh;
+}
+
+/* ── Alertas (éxito / error) ───────────────────────────────────── */
+.alerta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.alerta-exito {
+    background: rgba(46, 204, 113, 0.15);
+    border: 1px solid var(--verde-exito);
+    color: var(--verde-exito);
+}
+.alerta-error {
+    background: rgba(255, 77, 77, 0.15);
+    border: 1px solid var(--rojo-error);
+    color: var(--rojo-error);
+}
+.alerta i { font-size: 1.2rem; }
+
+/* ── Aviso de contraseña (registro) ───────────────────────────── */
+.advise-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(255, 204, 0, 0.08);
+    border: 1px solid rgba(255, 204, 0, 0.3);
+    border-radius: 8px;
+    color: var(--texto-gris);
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+.advise-box i { color: var(--acento-amarillo); font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+/* ── Formulario de configuración ───────────────────────────────── */
+.settings-form {
+    max-width: 620px;
+    margin: 3rem auto;
+    padding: 2.5rem;
+    background: var(--fondo-tarjeta);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid #2a3642;
+}
+.settings-form h3 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    color: var(--acento-amarillo);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.settings-form h4 {
+    font-size: 1.1rem;
+    color: var(--texto-gris);
+    border-bottom: 1px solid #2a3642;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* ── Grupos de formulario ──────────────────────────────────────── */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+.form-group label {
+    display: block;
+    color: var(--texto-gris);
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: #0b1116;
+    border: 1px solid #2a3642;
+    border-radius: 8px;
+    color: var(--texto-blanco);
+    font-size: 0.95rem;
+    font-family: var(--font-texto);
+    transition: border-color 0.3s;
+    outline: none;
+    resize: vertical;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--acento-amarillo);
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.1);
+}
+.form-group input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--texto-gris);
+    font-size: 0.8rem;
+}
+
+/* ── Botón guardar ─────────────────────────────────────────────── */
+.btn-save {
+    background: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    border: none;
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-save:hover {
+    background: #e6b800;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 204, 0, 0.3);
+}
+
+/* ── Botón cancelar ────────────────────────────────────────────── */
+.btn-cancelar {
+    background: transparent;
+    color: var(--texto-gris);
+    border: 1px solid #2a3642;
+    padding: 13px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.3s;
+}
+.btn-cancelar:hover {
+    border-color: var(--acento-amarillo);
+    color: var(--acento-amarillo);
+}
+
+/* ── Modal (agregar/editar) ────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+.modal-box {
+    background: var(--fondo-tarjeta);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 520px;
+    border: 1px solid #2a3642;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-box h3 {
+    color: var(--acento-amarillo);
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+}
+.modal-acciones {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* ── Header de secciones con botón ─────────────────────────────── */
+.orders-header,
+.inventory-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 2rem 2rem 1rem;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+.orders-header h2,
+.inventory-header h2 {
+    font-size: 1.8rem;
+    color: var(--texto-blanco);
+}
+
+/* ── Botón nueva orden / agregar ───────────────────────────────── */
+.btn-nueva-orden {
+    background: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+.btn-nueva-orden:hover {
+    background: #e6b800;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 204, 0, 0.25);
+}
+
+/* ── Filtros de estado ─────────────────────────────────────────── */
+.filtro-estado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 2rem 1.5rem;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+.btn-filtro {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid #2a3642;
+    background: transparent;
+    color: var(--texto-gris);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.btn-filtro:hover { border-color: var(--acento-amarillo); color: var(--acento-amarillo); }
+.btn-filtro.activo {
+    background: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    border-color: var(--acento-amarillo);
+}
+
+/* ── Grid de órdenes ───────────────────────────────────────────── */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 0 2rem 3rem;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* ── Tarjeta de orden ──────────────────────────────────────────── */
+.order-card {
+    background: var(--fondo-tarjeta);
+    border-radius: 14px;
+    border: 1px solid #2a3642;
+    border-left: 4px solid var(--acento-amarillo);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+}
+/* Color del borde izquierdo según estado */
+.order-card.status-pendiente  { border-left-color: var(--acento-amarillo); }
+.order-card.status-en_proceso { border-left-color: #3498db; }
+.order-card.status-terminado  { border-left-color: var(--verde-exito); }
+.order-card.status-entregado  { border-left-color: #9b59b6; }
+.order-card.status-cancelado  { border-left-color: var(--rojo-error); }
+
+.order-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem 0.5rem;
+    border-bottom: 1px solid #2a3642;
+}
+.order-header h3 { font-size: 1rem; color: var(--texto-blanco); }
+
+.order-body {
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.order-body p { font-size: 0.9rem; color: var(--texto-gris); }
+.order-body p strong { color: var(--texto-blanco); }
+
+.order-actions {
+    padding: 0.75rem 1.2rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    border-top: 1px solid #2a3642;
+}
+.order-actions select {
+    background: #0b1116;
+    border: 1px solid #2a3642;
+    color: white;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex: 1;
+    min-width: 120px;
+}
+.order-actions select:focus { outline: none; border-color: var(--acento-amarillo); }
+
+.btn-edit-orden, .btn-delete-orden {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    transition: 0.2s;
+    text-decoration: none;
+}
+.btn-edit-orden {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    border: 1px solid #3498db;
+}
+.btn-edit-orden:hover { background: #3498db; color: white; }
+.btn-delete-orden {
+    background: rgba(255, 77, 77, 0.15);
+    color: var(--rojo-error);
+    border: 1px solid var(--rojo-error);
+}
+.btn-delete-orden:hover { background: var(--rojo-error); color: white; }
+
+/* ── Badges de estado ──────────────────────────────────────────── */
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.badge-pendiente  { background: rgba(255,204,0,0.15);  color: var(--acento-amarillo); border: 1px solid var(--acento-amarillo); }
+.badge-en_proceso { background: rgba(52,152,219,0.15); color: #3498db; border: 1px solid #3498db; }
+.badge-terminado  { background: rgba(46,204,113,0.15); color: var(--verde-exito); border: 1px solid var(--verde-exito); }
+.badge-entregado  { background: rgba(155,89,182,0.15); color: #9b59b6; border: 1px solid #9b59b6; }
+.badge-cancelado  { background: rgba(255,77,77,0.15);  color: var(--rojo-error); border: 1px solid var(--rojo-error); }
+.badge-ok      { background: rgba(46,204,113,0.15); color: var(--verde-exito); border: 1px solid var(--verde-exito); }
+.badge-peligro { background: rgba(255,77,77,0.15);  color: var(--rojo-error);  border: 1px solid var(--rojo-error); }
+
+/* ── Tabla general ─────────────────────────────────────────────── */
+.inventory-container,
+.history-section {
+    max-width: 1300px;
+    margin: 2rem auto;
+    padding: 0 2rem 3rem;
+}
+.inventory-container h2,
+.history-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: var(--texto-blanco);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--fondo-tarjeta);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    border: 1px solid #2a3642;
+}
+.table thead {
+    background: #0b1116;
+    border-bottom: 2px solid var(--acento-amarillo);
+}
+.table th {
+    padding: 14px 16px;
+    text-align: left;
+    color: var(--acento-amarillo);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+.table td {
+    padding: 13px 16px;
+    color: var(--texto-blanco);
+    font-size: 0.9rem;
+    border-bottom: 1px solid #1e2c38;
+}
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+/* ── Botones editar/eliminar en tabla ──────────────────────────── */
+.btn-edit {
+    padding: 6px 12px;
+    background: rgba(52,152,219,0.15);
+    color: #3498db;
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.2s;
+    margin-right: 4px;
+}
+.btn-edit:hover { background: #3498db; color: white; }
+.btn-delete {
+    padding: 6px 12px;
+    background: rgba(255,77,77,0.15);
+    color: var(--rojo-error);
+    border: 1px solid var(--rojo-error);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.2s;
+}
+.btn-delete:hover { background: var(--rojo-error); color: white; }
+
+/* ── Buscador de historial ─────────────────────────────────────── */
+.history-section input[type="text"],
+#clientSearch {
+    width: 100%;
+    max-width: 380px;
+    padding: 11px 16px;
+    background: #0b1116;
+    border: 1px solid #2a3642;
+    border-radius: 8px;
+    color: var(--texto-blanco);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+#clientSearch:focus { border-color: var(--acento-amarillo); }
+
+/* ── Badge de visitas (historial) ──────────────────────────────── */
+.count-badge {
+    display: inline-block;
+    background: var(--acento-amarillo);
+    color: var(--fondo-oscuro);
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 3px 12px;
+    border-radius: 20px;
+    min-width: 32px;
+    text-align: center;
+}
+
+/* ── Link activo en nav ────────────────────────────────────────── */
+.nav__link.active { color: var(--acento-amarillo); }
+
+/* ── Responsive empleado ───────────────────────────────────────── */
+@media (max-width: 768px) {
+    .orders-grid { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
+    .orders-header, .inventory-header, .filtro-estado { padding-left: 1rem; padding-right: 1rem; }
+    .inventory-container, .history-section { padding: 0 1rem 2rem; }
+    .settings-form { margin: 1.5rem 1rem; padding: 1.5rem; }
+    .modal-box { padding: 1.5rem; }
+    .modal-acciones { flex-direction: column; }
+    .modal-acciones .btn-save,
+    .modal-acciones .btn-cancelar { width: 100%; justify-content: center; }
+    .table { font-size: 0.8rem; }
+    .table th, .table td { padding: 10px 10px; }
+    .order-actions { flex-direction: column; align-items: stretch; }
+}
+@media (max-width: 480px) {
+    .orders-header, .inventory-header { flex-direction: column; align-items: flex-start; }
+    .filtro-estado { gap: 6px; }
+    .btn-filtro { font-size: 0.78rem; padding: 6px 12px; }
+}
+
+/* ── Campo de contraseña con botón mostrar/ocultar ─────────────── */
+.input-password-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.input-password-wrap .inputsR {
+    padding-right: 46px; /* espacio para el botón */
+}
+.btn-toggle-pass {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: var(--texto-gris);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+.btn-toggle-pass:hover { color: var(--acento-amarillo); }
+
+/* ── Link de registro / acciones bajo el form ──────────────────── */
+.link-registro {
+    text-align: center;
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+}
+.link-registro a {
+    color: var(--acento-amarillo);
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+.link-registro a:hover { opacity: 0.8; text-decoration: underline; }

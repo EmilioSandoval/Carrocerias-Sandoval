@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Historial de Clientes | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -20,7 +20,7 @@
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
                     <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link">Trabajo</a></li>
-                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link active">Historial</a></li>
                     <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
                     <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
                     <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
@@ -32,30 +32,46 @@
         </nav>
     </header>
 
-   <main class="main">
+    <main class="main">
         <div class="history-section">
-    <input type="text" id="clientSearch" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
-    <table class="table" id="tableClientes">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Contacto</th>
-                <th>Último Servicio</th>
-                <th>Total Visitas</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% historial.forEach(cliente => { %>
-                <tr>
-                    <td><strong><%= cliente.nombre %></strong></td>
-                    <td><%= cliente.correo %><br><small><%= cliente.telefono %></small></td>
-                    <td><%= cliente.ultimo_servicio || 'N/A' %></td>
-                    <td><span class="count-badge"><%= cliente.total_ordenes %></span></td>
-                </tr>
-            <% }) %>
-        </tbody>
-    </table>
-</div>
+            <h2>Historial de Clientes</h2>
+            <input type="text" id="clientSearch" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
+
+            <% if (!historial || historial.length === 0) { %>
+                <p style="text-align:center; margin-top:2rem;">No hay registros de clientes todavía.</p>
+            <% } else { %>
+                <table class="table" id="tableClientes">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Último Vehículo</th>
+                            <th>Placas</th>
+                            <th>Último Servicio</th>
+                            <th>Última Visita</th>
+                            <th>Total Visitas</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% historial.forEach(cliente => { %>
+                            <tr>
+                                <td><strong><%= cliente.nombre %></strong></td>
+                                <td><%= cliente.vehiculo_modelo || 'N/A' %></td>
+                                <td><%= cliente.placas || 'N/A' %></td>
+                                <td><%= cliente.ultimo_servicio || 'N/A' %></td>
+                                <td><%= cliente.ultima_visita ? new Date(cliente.ultima_visita).toLocaleDateString('es-MX') : 'N/A' %></td>
+                                <td><span class="count-badge"><%= cliente.total_ordenes %></span></td>
+                                <td>
+                                    <a href="/Empleado/historial-clientes/<%= encodeURIComponent(cliente.nombre) %>" class="btn-edit">
+                                        <i class="ri-eye-line"></i> Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
     </main>
 
     <footer class="pie_de_pagina">
@@ -63,24 +79,30 @@
             <div class="box">
                 <h2>NOSOTROS</h2>
                 <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
-                <p>A través de esta plataforma, buscamos mostrar nuestra trayectoria y los trabajos realizados.</p>
             </div>
-
             <div class="box">
                 <h2>Contáctanos</h2>
                 <div class="redes">
                     <a href="https://www.facebook.com/profile.php?id=61570873678977" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
                     <a href="https://www.instagram.com/carroceriassandoval/" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
-                    <a href="https://www.tiktok.com/@carroceriassandoval?is_from_webapp=1&sender_device=pc" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                    <a href="https://www.tiktok.com/@carroceriassandoval" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
                 </div>
             </div>
         </div>
-        
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
+    <script>
+        function filtrarClientes() {
+            const filtro = document.getElementById('clientSearch').value.toLowerCase();
+            const filas  = document.querySelectorAll('#tableClientes tbody tr');
+            filas.forEach(fila => {
+                fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>

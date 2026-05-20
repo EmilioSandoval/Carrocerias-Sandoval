@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Órdenes de Trabajo | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -19,7 +19,7 @@
             </div>
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link active">Trabajo</a></li>
                     <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
                     <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
                     <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
@@ -32,61 +32,109 @@
         </nav>
     </header>
 
-   <main class="main">
-    <div class="orders-grid">
-    <% ordenes.forEach(orden => { %>
-        <div class="order-card status-<%= (orden.estado || '').toLowerCase().replace(/\s+/g, '-') %>">
-            <div class="order-header">
-                <h3>Orden #<%= orden.id %></h3>
-                <span class="badge"><%= orden.estado %></span>
-            </div>
-
-            <div class="order-body">
-                <p><strong>Cliente:</strong> <%= orden.cliente_nombre %></p>
-                <p><strong>Vehículo:</strong> <%= orden.vehiculo_modelo %></p>
-                <p><strong>Placas:</strong> <%= orden.placas %></p>
-                <p><strong>Falla:</strong> <%= orden.descripcion_falla %></p>
-                <p><strong>Fecha de entrada:</strong> <%= new Date(orden.fecha_entrada).toLocaleDateString() %></p>
-            </div>
-
-            <div class="order-actions">
-                <form action="/empleado/ordenes/actualizar-estado" method="POST">
-                    <input type="hidden" name="id_orden" value="<%= orden.id %>">
-                    <select name="nuevo_estado" onchange="this.form.submit()">
-                        <option value="Pendiente" <%= orden.estado === 'Pendiente' ? 'selected' : '' %>>Pendiente</option>
-                        <option value="En Proceso" <%= orden.estado === 'En Proceso' ? 'selected' : '' %>>En Proceso</option>
-                        <option value="Terminado" <%= orden.estado === 'Terminado' ? 'selected' : '' %>>Terminado</option>
-                    </select>
-                </form>
-            </div>
+    <main class="main">
+        <div class="orders-header">
+            <h2>Órdenes de Trabajo</h2>
+            <a href="/Empleado/ordenes-trabajo/nueva" class="btn-nueva-orden">
+                <i class="ri-add-line"></i> Nueva Orden
+            </a>
         </div>
-    <% }) %>
-</div>
-</main>
+
+        <!-- Filtro por estado -->
+        <div class="filtro-estado">
+            <a href="/Empleado/ordenes-trabajo" class="btn-filtro <%= filtroEstado === '' ? 'activo' : '' %>">Todas</a>
+            <a href="/Empleado/ordenes-trabajo?estado=pendiente"    class="btn-filtro <%= filtroEstado === 'pendiente'    ? 'activo' : '' %>">Pendiente</a>
+            <a href="/Empleado/ordenes-trabajo?estado=en_proceso"   class="btn-filtro <%= filtroEstado === 'en_proceso'   ? 'activo' : '' %>">En Proceso</a>
+            <a href="/Empleado/ordenes-trabajo?estado=terminado"    class="btn-filtro <%= filtroEstado === 'terminado'    ? 'activo' : '' %>">Terminado</a>
+            <a href="/Empleado/ordenes-trabajo?estado=entregado"    class="btn-filtro <%= filtroEstado === 'entregado'    ? 'activo' : '' %>">Entregado</a>
+            <a href="/Empleado/ordenes-trabajo?estado=cancelado"    class="btn-filtro <%= filtroEstado === 'cancelado'    ? 'activo' : '' %>">Cancelado</a>
+        </div>
+
+        <% if (!ordenes || ordenes.length === 0) { %>
+            <p style="text-align:center; margin-top:2rem;">No hay órdenes de trabajo<%= filtroEstado ? ' con estado "' + filtroEstado + '"' : '' %>.</p>
+        <% } else { %>
+            <div class="orders-grid">
+                <% ordenes.forEach(orden => { %>
+                    <div class="order-card status-<%= orden.estado %>">
+                        <div class="order-header">
+                            <h3>Orden #<%= orden.id %></h3>
+                            <span class="badge badge-<%= orden.estado %>">
+                                <%= orden.estado === 'en_proceso' ? 'En Proceso' : orden.estado.charAt(0).toUpperCase() + orden.estado.slice(1) %>
+                            </span>
+                        </div>
+
+                        <div class="order-body">
+                            <p><strong>Cliente:</strong> <%= orden.cliente_nombre %></p>
+                            <p><strong>Vehículo:</strong> <%= orden.vehiculo_modelo %></p>
+                            <p><strong>Placas:</strong> <%= orden.placas %></p>
+                            <p><strong>Falla:</strong> <%= orden.descripcion_falla %></p>
+                            <% if (orden.costo_estimado) { %>
+                                <p><strong>Costo estimado:</strong> $<%= Number(orden.costo_estimado).toLocaleString('es-MX') %></p>
+                            <% } %>
+                            <p><strong>Fecha de entrada:</strong> <%= new Date(orden.fecha_entrada).toLocaleDateString('es-MX') %></p>
+                        </div>
+
+                        <div class="order-actions">
+                            <!-- Cambio de estado rápido -->
+                            <form action="/empleado/ordenes/actualizar-estado" method="POST">
+                                <input type="hidden" name="id_orden" value="<%= orden.id %>">
+                                <select name="nuevo_estado" onchange="this.form.submit()">
+                                    <option value="pendiente"  <%= orden.estado === 'pendiente'  ? 'selected' : '' %>>Pendiente</option>
+                                    <option value="en_proceso" <%= orden.estado === 'en_proceso' ? 'selected' : '' %>>En Proceso</option>
+                                    <option value="terminado"  <%= orden.estado === 'terminado'  ? 'selected' : '' %>>Terminado</option>
+                                    <option value="entregado"  <%= orden.estado === 'entregado'  ? 'selected' : '' %>>Entregado</option>
+                                    <option value="cancelado"  <%= orden.estado === 'cancelado'  ? 'selected' : '' %>>Cancelado</option>
+                                </select>
+                            </form>
+
+                            <!-- Editar -->
+                            <a href="/Empleado/ordenes-trabajo/editar/<%= orden.id %>" class="btn-edit-orden">
+                                <i class="ri-edit-line"></i> Editar
+                            </a>
+
+                            <!-- Eliminar -->
+                            <button class="btn-delete-orden" onclick="eliminarOrden(<%= orden.id %>)">
+                                <i class="ri-delete-bin-line"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </main>
 
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
                 <h2>NOSOTROS</h2>
                 <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
-                <p>A través de esta plataforma, buscamos mostrar nuestra trayectoria y los trabajos realizados.</p>
             </div>
-
             <div class="box">
                 <h2>Contáctanos</h2>
                 <div class="redes">
                     <a href="https://www.facebook.com/profile.php?id=61570873678977" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
                     <a href="https://www.instagram.com/carroceriassandoval/" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
-                    <a href="https://www.tiktok.com/@carroceriassandoval?is_from_webapp=1&sender_device=pc" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                    <a href="https://www.tiktok.com/@carroceriassandoval" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
                 </div>
             </div>
         </div>
-        
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
+    <script>
+        function eliminarOrden(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar la Orden #' + id + '? Esta acción no se puede deshacer.')) return;
+            fetch('/empleado/ordenes/' + id, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.mensaje || 'Orden eliminada');
+                    window.location.reload();
+                })
+                .catch(() => alert('Error al eliminar la orden'));
+        }
+    </script>
 </body>
 </html>

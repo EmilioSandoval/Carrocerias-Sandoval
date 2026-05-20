@@ -1,596 +1,855 @@
-const express = require('express');
-const app = express();
-const path = require('path');
-const { Pool } = require('pg');
-const crypto = require('crypto');
+require('dotenv').config();
+
+const express    = require('express');
+const path       = require('path');
+const { Pool }   = require('pg');
+const crypto     = require('crypto');
 const nodemailer = require('nodemailer');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
-const multer = require ('multer');
+const session    = require('express-session');
+const bcrypt     = require('bcrypt');
+const multer     = require('multer');
+const rateLimit  = require('express-rate-limit');
+
+const app = express();
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const uniqueName = Date.now() + '-' + file.originalname;
-        cb(null, uniqueName);
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename:    (req, file, cb) => {
+        const ext        = path.extname(file.originalname).toLowerCase();
+        const safeName   = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
+        cb(null, safeName);
+    }
+});
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },                        
+    fileFilter: (req, file, cb) => {
+        const allowed = /jpeg|jpg|png|webp/;
+        const ok = allowed.test(path.extname(file.originalname).toLowerCase())
+                && allowed.test(file.mimetype);
+        ok ? cb(null, true) : cb(new Error('Solo se permiten imágenes (jpg, png, webp)'));
     }
 });
 app.use('/uploads', express.static('uploads'));
-const upload = multer({ storage });
-app.use(session({
-    secret: 'carrocerias_sandoval_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false,
-        maxAge:1000 * 60 * 60 * 2
-     } // Cambia a true si usas HTTPS
 
+app.use(session({
+    secret:            process.env.SESSION_SECRET,   
+    resave:            false,
+    saveUninitialized: false,
+    cookie: {
+        secure:   process.env.NODE_ENV === 'production', 
+        httpOnly: true,          
+        maxAge:   1000 * 60 * 60 * 2   
+    }
 }));
 
-// 1. Configuración de transporte
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'carroceriassandoval1968@gmail.com',
-        pass: 'etcv vhkn olsk yxbz'
+        user: process.env.MAIL_USER,    
+        pass: process.env.MAIL_PASS
     }
 });
+
+const pool = new Pool({
+    user:     process.env.DB_USER,      
+    host:     process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port:     Number(process.env.DB_PORT) || 5432,
+});
+
+pool.query('SELECT NOW()', (err) =>
+    err ? console.error('Error de conexión a DB:', err.message)
+        : console.log('Base de datos conectada correctamente')
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 2. Configuración de DB
-const pool = new Pool({
-    user: 'admin',
-    host: 'localhost',
-    database: 'carrocerias_db',
-    password: 'Ultimatexbox16',
-    port: 5432,
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,   
+    max: 10,                     
+    message: 'Demasiados intentos de inicio de sesión. Espera 15 minutos.',
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) console.log("Error de conexión a DB", err);
-    else console.log("Base de datos conectada correctamente");
-});
-
-// Middleware de seguridad
 function esEmpleado(req, res, next) {
-    if (req.session && req.session.usuario && req.session.usuario.rol === 'empleado') {
-        return next();
-    }
-    res.status(403).send('Acceso denegado: Esta área es exclusiva para empleados.');
+    if (req.session?.usuario?.rol === 'empleado') return next();
+    res.status(403).render('error', {
+        codigo:  403,
+        mensaje: 'Acceso denegado: área exclusiva para empleados.'
+    });
 }
+
 function esCliente(req, res, next) {
-    if (req.session && req.session.usuario && req.session.usuario.rol === 'cliente') {
-        return next();
-    }
-    res.status(403).send('Acceso denegado: Esta área es exclusiva para clientes.');
+    if (req.session?.usuario?.rol === 'cliente') return next();
+    res.status(403).render('error', {
+        codigo:  403,
+        mensaje: 'Acceso denegado: área exclusiva para clientes.'
+    });
 }
+
+const EMAIL_REGEX    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_MIN   = 8;
+
+function validarEmail(correo) { return EMAIL_REGEX.test(correo); }
+function validarPassword(pwd) { return pwd && pwd.length >= PASSWORD_MIN; }
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'HTML'));
 
-app.use('/CSS', express.static(path.join(__dirname, 'CSS')));
-app.use('/JS', express.static(path.join(__dirname, 'JS')));
+app.use('/CSS',      express.static(path.join(__dirname, 'CSS')));
+app.use('/JS',       express.static(path.join(__dirname, 'JS')));
 app.use('/IMAGENES', express.static(path.join(__dirname, 'IMAGENES')));
 
-// --- RUTAS GET ---
-app.get('/', (req, res) => res.render('inicio'));
-app.get('/cliente-registro', (req, res) => res.render('cliente-registro', { successRegister: false }));
-app.get('/cliente-inicio', (req, res) => res.render('cliente-inicio'));
-app.get('/empleado-registro', (req, res) => res.render('empleado-registro', { successRegister: false }));
-app.get('/empleado-inicio', (req, res) => res.render('empleado-inicio'));
-app.get('/menu', (req, res) => res.render('menu'));
-app.get('/Cliente/servicios', esCliente, (req, res) => res.render('Cliente/servicios'));
-app.get('/Cliente/trabajos', esCliente, (req, res) => res.render('Cliente/trabajos'));
-app.get('/Cliente/contactos', esCliente, (req, res) => res.render('Cliente/contactos'));
-app.get('/Cliente/mis-cotizaciones', esCliente, async (req, res) =>{ try {
-        const usuarioId = req.session.usuario.id;
+app.get('/',                (req, res) => res.render('inicio'));
+app.get('/menu',            (req, res) => res.render('menu'));
+app.get('/cliente-inicio',  (req, res) => res.render('cliente-inicio'));
+app.get('/empleado-inicio', (req, res) => res.render('empleado-inicio', { mensaje: null }));
+app.get('/cliente-registro',(req, res) => res.render('cliente-registro', { successRegister: false, error: null }));
 
-        const cotizacionesResult = await pool.query(
+app.get('/empleado-registro', (req, res) =>
+    res.render('empleado-registro', { successRegister: false, error: null })
+);
+
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) return res.status(500).send('No se pudo cerrar sesión');
+        res.clearCookie('connect.sid');
+        res.redirect('/');
+    });
+});
+
+app.get('/Cliente/pagina-cliente', esCliente, (req, res) =>
+    res.render('Cliente/pagina-cliente', { userRole: 'cliente', usuario: req.session.usuario })
+);
+app.get('/Cliente/servicios',  esCliente, (req, res) => res.render('Cliente/servicios'));
+app.get('/Cliente/trabajos',   esCliente, (req, res) => res.render('Cliente/trabajos'));
+app.get('/Cliente/contactos',  esCliente, (req, res) => res.render('Cliente/contactos'));
+app.get('/Cliente/Cotizacion', esCliente, (req, res) => res.render('Cliente/Cotizacion'));
+
+app.get('/Cliente/mis-cotizaciones', esCliente, async (req, res) => {
+    try {
+        const { rows } = await pool.query(
             `SELECT id, unidad, total, fecha
-             FROM cotizaciones
-             WHERE cliente_id = $1
-             ORDER BY fecha DESC`,
-            [usuarioId]
+               FROM cotizaciones
+              WHERE cliente_id = $1
+              ORDER BY fecha DESC`,
+            [req.session.usuario.id]
         );
-
-        res.render('Cliente/mis-cotizaciones', {
-            cotizaciones: cotizacionesResult.rows
-        });
-    } catch (error) {
-        console.error('Error al cargar mis cotizaciones:', error.message);
+        res.render('Cliente/mis-cotizaciones', { cotizaciones: rows });
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error al cargar cotizaciones');
     }
 });
-app.get('/Cliente/perfil', esCliente, async (req, res) => {
+
+app.get('/Cliente/mis-cotizaciones/:id', esCliente, async (req, res) => {
     try {
         const usuarioId = req.session.usuario.id;
-
-        const result = await pool.query(
-            'SELECT id, nombre, correo, telefono, foto_url, fecha_registro FROM usuarios WHERE id = $1',
-            [usuarioId]
+        const cotRes = await pool.query(
+            `SELECT id, unidad, total, fecha FROM cotizaciones WHERE id=$1 AND cliente_id=$2`,
+            [req.params.id, usuarioId]
         );
+        if (!cotRes.rows.length) return res.status(404).send('Cotización no encontrada');
 
-        if (result.rows.length === 0) {
-            return res.status(404).send('Usuario no encontrado');
-        }
+        const detRes = await pool.query(
+            `SELECT servicio, cantidad, subtotal FROM cotizacion_detalle WHERE cotizacion_id=$1`,
+            [req.params.id]
+        );
+        res.render('Cliente/detalle-cotizacion', {
+            cotizacion: cotRes.rows[0],
+            detalle:    detRes.rows
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al cargar el detalle');
+    }
+});
 
-        res.render('Cliente/perfil', { cliente: result.rows[0] });
-    } catch (error) {
-        console.error('Error al cargar perfil:', error.message);
+app.get('/Cliente/perfil', esCliente, async (req, res) => {
+    try {
+        const { rows } = await pool.query(
+            'SELECT id, nombre, correo, telefono, foto_url, fecha_registro FROM usuarios WHERE id=$1',
+            [req.session.usuario.id]
+        );
+        if (!rows.length) return res.status(404).send('Usuario no encontrado');
+        res.render('Cliente/perfil', { cliente: rows[0] });
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error al cargar el perfil');
     }
 });
-app.get('/Cliente/Cotizacion', esCliente, (req, res) => res.render('Cliente/Cotizacion'));
-app.get('/Cliente/pagina-cliente', esCliente,(req, res) => res.render('Cliente/pagina-cliente', { userRole: 'cliente' }));
-app.get('/Empleado/pagina-empleado', esEmpleado, (req, res) => res.render('Empleado/pagina-empleado', { userRole: 'empleado' }));
+
+app.get('/Cliente/trabajos/:slug', esCliente, (req, res) => {
+    const trabajos = {
+        'aldo-trujillo':   { titulo: 'Trabajo Aldo Trujillo',   descripcion: 'Proyecto de carrocería y acabado final.',       imagenes: ['/IMAGENES/Aldo Trujillo 4.jpeg','/IMAGENES/Aldo Trujillo 2.jpeg','/IMAGENES/Aldo Trujillo 3.jpeg','/IMAGENES/Aldo Trujillo 1.jpeg','/IMAGENES/Aldo Trujillo 5.jpeg','/IMAGENES/Aldo Trujillo 6.jpeg','/IMAGENES/Aldo Trujillo 7.jpeg'] },
+        'saul':            { titulo: 'Trabajo Saúl',             descripcion: 'Proceso de reparación y pintura.',              imagenes: ['/IMAGENES/Saul 1.jpeg','/IMAGENES/Saul 2.jpeg','/IMAGENES/Saul 3.jpeg','/IMAGENES/Saul 4.jpeg','/IMAGENES/Saul 5.jpeg','/IMAGENES/Saul 6.jpeg','/IMAGENES/Saul 7.jpeg','/IMAGENES/Saul 8.jpeg','/IMAGENES/Saul 9.jpeg','/IMAGENES/Saul 10.jpeg','/IMAGENES/Saul 11.jpeg','/IMAGENES/Saul 12.jpeg','/IMAGENES/Saul 13.jpeg','/IMAGENES/Saul 14.jpeg'] },
+        'montoya':         { titulo: 'Trabajo Montoya',          descripcion: 'Restauración y detalles de estructura.',         imagenes: ['/IMAGENES/Montoya.jpeg'] },
+        'moy':             { titulo: 'Trabajo Moy',              descripcion: 'Trabajo de interiores y exterior.',              imagenes: ['/IMAGENES/Moy 1.jpeg','/IMAGENES/Moy 2.jpeg'] },
+        'palomo':          { titulo: 'Trabajo Palomo',           descripcion: 'Reparación general y pintura.',                  imagenes: ['/IMAGENES/Palomo 1.jpeg','/IMAGENES/Palomo 2.jpeg'] },
+        'outdoor':         { titulo: 'Trabajo Outdoor',          descripcion: 'Proyecto exterior terminado.',                   imagenes: ['/IMAGENES/Outdoor.jpeg'] },
+        'sh-transportation':{ titulo: 'Trabajo SH',             descripcion: 'Pintura general, pulida y encerado.',            imagenes: ['/IMAGENES/SH 4.jpeg','/IMAGENES/SH 2.jpeg','/IMAGENES/SH 3.jpeg','/IMAGENES/SH 1.jpeg'] }
+    };
+    const trabajo = trabajos[req.params.slug];
+    if (!trabajo) return res.status(404).send('Trabajo no encontrado');
+    res.render('Cliente/detalle-trabajo', { trabajo });
+});
+
+app.get('/Empleado/pagina-empleado', esEmpleado, (req, res) =>
+    res.render('Empleado/pagina-empleado', { userRole: 'empleado', usuario: req.session.usuario })
+);
+
 app.get('/Empleado/inventario-taller', esEmpleado, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM inventario ORDER BY producto ASC');
-        res.render('Empleado/Inventario-taller', { productos: result.rows });
+        const { rows } = await pool.query('SELECT * FROM inventario ORDER BY producto ASC');
+        res.render('Empleado/Inventario-taller', { productos: rows, error: null });
     } catch (err) {
         console.error(err);
-        res.render('Empleado/Inventario-taller', { productos: [] });
+        res.render('Empleado/Inventario-taller', { productos: [], error: 'Error al cargar inventario' });
     }
 });
+
 app.get('/Empleado/ordenes-trabajo', esEmpleado, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM ordenes_trabajo ORDER BY fecha_entrada DESC');
-        res.render('Empleado/ordenes-trabajo', { ordenes: result.rows });
+        const { estado } = req.query;
+        let query  = 'SELECT * FROM ordenes_trabajo';
+        let params = [];
+
+        if (estado) {
+            query  += ' WHERE estado = $1';
+            params  = [estado];
+        }
+        query += ' ORDER BY fecha_entrada DESC';
+
+        const { rows } = await pool.query(query, params);
+        res.render('Empleado/ordenes-trabajo', {
+            ordenes:       rows,
+            filtroEstado:  estado || '',
+            error:         null
+        });
     } catch (err) {
         console.error(err);
-        res.render('Empleado/ordenes-trabajo', { ordenes: [] });
+        res.render('Empleado/ordenes-trabajo', { ordenes: [], filtroEstado: '', error: 'Error al cargar órdenes' });
     }
 });
+
+app.get('/Empleado/ordenes-trabajo/nueva', esEmpleado, (req, res) =>
+    res.render('Empleado/nueva-orden', { error: null })
+);
+
+app.get('/Empleado/ordenes-trabajo/editar/:id', esEmpleado, async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT * FROM ordenes_trabajo WHERE id=$1', [req.params.id]);
+        if (!rows.length) return res.status(404).send('Orden no encontrada');
+        res.render('Empleado/editar-orden', { orden: rows[0], error: null });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al cargar la orden');
+    }
+});
+
 app.get('/Empleado/historial-clientes', esEmpleado, async (req, res) => {
     try {
-        const result = await pool.query(`
+        const { rows } = await pool.query(`
             SELECT 
-                cliente_nombre AS nombre,
-                MAX(vehiculo_modelo) AS vehiculo_modelo,
-                MAX(placas) AS placas,
-                MAX(descripcion_falla) AS ultimo_servicio,
-                COUNT(id) AS total_ordenes
+                cliente_nombre           AS nombre,
+                MAX(vehiculo_modelo)     AS vehiculo_modelo,
+                MAX(placas)              AS placas,
+                MAX(descripcion_falla)   AS ultimo_servicio,
+                COUNT(id)                AS total_ordenes,
+                MAX(fecha_entrada)       AS ultima_visita
             FROM ordenes_trabajo
             GROUP BY cliente_nombre
-            ORDER BY cliente_nombre ASC
+            ORDER BY ultima_visita DESC
         `);
-
-        res.render('Empleado/historial-clientes', { historial: result.rows });
-    } catch (error) {
-        console.error('Error al obtener historial:', error.message);
+        res.render('Empleado/historial-clientes', { historial: rows });
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error al obtener historial');
     }
 });
+
+app.get('/Empleado/historial-clientes/:nombre', esEmpleado, async (req, res) => {
+    try {
+        const nombre = decodeURIComponent(req.params.nombre);
+        const { rows } = await pool.query(
+            `SELECT * FROM ordenes_trabajo WHERE cliente_nombre=$1 ORDER BY fecha_entrada DESC`,
+            [nombre]
+        );
+        res.render('Empleado/detalle-historial', { ordenes: rows, clienteNombre: nombre });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al cargar el historial del cliente');
+    }
+});
+
+app.get('/Empleado/cotizaciones', esEmpleado, async (req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT c.id, c.unidad, c.total, c.fecha,
+                   u.nombre AS cliente_nombre, u.correo AS cliente_correo
+              FROM cotizaciones c
+              JOIN usuarios u ON u.id = c.cliente_id
+             ORDER BY c.fecha DESC
+        `);
+        res.render('Empleado/cotizaciones', { cotizaciones: rows });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al cargar cotizaciones');
+    }
+});
+
 app.get('/Empleado/configuracion', esEmpleado, async (req, res) => {
     try {
-        const usuarioId = req.session.usuario.id;
-
-        const result = await pool.query(
-            'SELECT id, nombre, correo FROM usuarios WHERE id = $1',
-            [usuarioId]
+        const { rows } = await pool.query(
+            'SELECT id, nombre, correo, telefono, foto_url, id_rol FROM usuarios WHERE id=$1',
+            [req.session.usuario.id]
         );
-
-        if (result.rows.length === 0) {
-            return res.status(404).send('Empleado no encontrado');
-        }
-
-        res.render('Empleado/configuracion', { usuario: result.rows[0] });
-    } catch (error) {
-        console.error('Error al cargar configuración:', error.message);
+        if (!rows.length) return res.status(404).send('Empleado no encontrado');
+        res.render('Empleado/configuracion', { usuario: rows[0], mensaje: null, error: null });
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error al cargar configuración');
     }
 });
+
+app.get('/Empleado/dashboard', esEmpleado, async (req, res) => {
+    try {
+        const [ordenesRes, inventarioRes, cotizacionesRes] = await Promise.all([
+            pool.query(`SELECT estado, COUNT(*) AS total FROM ordenes_trabajo GROUP BY estado`),
+            pool.query(`SELECT COUNT(*) AS total FROM inventario WHERE cantidad <= stock_minimo`),
+            pool.query(`SELECT COUNT(*) AS total FROM cotizaciones WHERE fecha >= NOW() - INTERVAL '30 days'`)
+        ]);
+
+        const ordenesPorEstado  = ordenesRes.rows;
+        const alertasInventario = Number(inventarioRes.rows[0]?.total) || 0;
+        const cotizacionesMes   = Number(cotizacionesRes.rows[0]?.total) || 0;
+
+        res.render('Empleado/dashboard', {
+            ordenesPorEstado,
+            alertasInventario,
+            cotizacionesMes
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al cargar el dashboard');
+    }
+});
+
 app.get('/api/marca-autobus', async (req, res) => {
     try {
-        const result = await pool.query(
-            'SELECT id, nombre FROM marca_autobus ORDER BY nombre ASC'
-        );
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error al obtener marcas:', error.message);
+        const { rows } = await pool.query('SELECT id, nombre FROM marca_autobus ORDER BY nombre ASC');
+        res.json(rows);
+    } catch (err) {
         res.status(500).json({ error: 'Error al obtener marcas' });
     }
 });
 
 app.get('/api/modelos-autobus/:marcaId', async (req, res) => {
-    const { marcaId } = req.params;
-
     try {
-        const result = await pool.query(
-            'SELECT id, nombre, tipo_unidad FROM modelos_autobus WHERE marca_id = $1 ORDER BY nombre ASC',
-            [marcaId]
+        const { rows } = await pool.query(
+            'SELECT id, nombre, tipo_unidad FROM modelos_autobus WHERE marca_id=$1 ORDER BY nombre ASC',
+            [req.params.marcaId]
         );
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error al obtener modelos:', error.message);
+        res.json(rows);
+    } catch (err) {
         res.status(500).json({ error: 'Error al obtener modelos' });
     }
 });
-app.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error al cerrar sesión:', err.message);
-            return res.status(500).send('No se pudo cerrar sesión');
-        }
-        res.clearCookie('connect.sid');
-        res.redirect('/');
-    });
-});
-app.get('/Cliente/mis-cotizaciones/:id', esCliente, async (req, res) => {
-    try {
-        const usuarioId = req.session.usuario.id;
-        const { id } = req.params;
 
-        const cotizacionResult = await pool.query(
-            `SELECT id, unidad, total, fecha
-             FROM cotizaciones
-             WHERE id = $1 AND cliente_id = $2`,
-            [id, usuarioId]
-        );
-
-        if (cotizacionResult.rows.length === 0) {
-            return res.status(404).send('Cotización no encontrada');
-        }
-
-        const detalleResult = await pool.query(
-            `SELECT servicio, cantidad, subtotal
-             FROM cotizacion_detalle
-             WHERE cotizacion_id = $1`,
-            [id]
-        );
-
-        res.render('Cliente/detalle-cotizacion', {
-            cotizacion: cotizacionResult.rows[0],
-            detalle: detalleResult.rows
-        });
-    } catch (error) {
-        console.error('Error al cargar detalle de cotización:', error.message);
-        res.status(500).send('Error al cargar el detalle');
-    }
-});
-app.get('/Cliente/trabajos/:slug', (req, res) => {
-    const { slug } = req.params;
-
-    const trabajos = {
-        'aldo-trujillo': {
-            titulo: 'Trabajo Aldo Trujillo',
-            descripcion: 'Proyecto de carrocería y acabado final.',
-            imagenes: [
-                '/IMAGENES/Aldo Trujillo 4.jpeg',
-                '/IMAGENES/Aldo Trujillo 2.jpeg',
-                '/IMAGENES/Aldo Trujillo 3.jpeg',
-                '/IMAGENES/Aldo Trujillo 1.jpeg',
-                '/IMAGENES/Aldo Trujillo 5.jpeg',
-                '/IMAGENES/Aldo Trujillo 6.jpeg',
-                '/IMAGENES/Aldo Trujillo 7.jpeg'
-            ]
-        },
-        'saul': {
-            titulo: 'Trabajo Saúl',
-            descripcion: 'Proceso de reparación y pintura.',
-            imagenes: [
-                '/IMAGENES/Saul 1.jpeg',
-                '/IMAGENES/Saul 2.jpeg',
-                '/IMAGENES/Saul 3.jpeg',
-                '/IMAGENES/Saul 4.jpeg',
-                '/IMAGENES/Saul 5.jpeg',
-                '/IMAGENES/Saul 6.jpeg',
-                '/IMAGENES/Saul 7.jpeg',
-                '/IMAGENES/Saul 8.jpeg',
-                '/IMAGENES/Saul 9.jpeg',
-                '/IMAGENES/Saul 10.jpeg',
-                '/IMAGENES/Saul 11.jpeg',
-                '/IMAGENES/Saul 12.jpeg',
-                '/IMAGENES/Saul 13.jpeg',
-                '/IMAGENES/Saul 14.jpeg'
-            ]
-        },
-        'montoya': {
-            titulo: 'Trabajo Montoya',
-            descripcion: 'Restauración y detalles de estructura.',
-            imagenes: [
-                '/IMAGENES/Montoya.jpeg'
-            ]
-        },
-        'moy': {
-            titulo: 'Trabajo Moy',
-            descripcion: 'Trabajo de interiores y exterior.',
-            imagenes: [
-                '/IMAGENES/Moy 1.jpeg',
-                '/IMAGENES/Moy 2.jpeg'
-            ]
-        },
-        'palomo': {
-            titulo: 'Trabajo Palomo',
-            descripcion: 'Reparación general y pintura.',
-            imagenes: [
-                '/IMAGENES/Palomo 1.jpeg',
-                '/IMAGENES/Palomo 2.jpeg'
-            ]
-        },
-        'outdoor': {
-            titulo: 'Trabajo Outdoor',
-            descripcion: 'Proyecto exterior terminado.',
-            imagenes: [
-                '/IMAGENES/Outdoor.jpeg'
-            ]
-        },
-        'sh-transportation': {
-            titulo: 'Trabajo SH',
-            descripcion: 'Pintura general, pulida y encerado',
-            imagenes: [
-                '/IMAGENES/SH 4.jpeg',
-                '/IMAGENES/SH 2.jpeg',
-                '/IMAGENES/SH 3.jpeg',
-                '/IMAGENES/SH 1.jpeg'
-            ]
-        }
-    };
-
-    const trabajo = trabajos[slug];
-
-    if (!trabajo) {
-        return res.status(404).send('Trabajo no encontrado');
-    }
-
-    res.render('Cliente/detalle-trabajo', { trabajo });
-});
-// --- RUTAS POST ---
-app.post('/cliente-inicio', async (req, res) => {
+app.post('/cliente-inicio', loginLimiter, async (req, res) => {
     const { correo, password } = req.body;
 
+    if (!validarEmail(correo) || !password) {
+        return res.render('cliente-inicio', { error: 'Correo o contraseña inválidos.' });
+    }
+
     try {
-        const result = await pool.query(
-            'SELECT * FROM usuarios WHERE correo = $1 AND rol = $2',
-            [correo, 'cliente']
+        const { rows } = await pool.query(
+            'SELECT * FROM usuarios WHERE correo=$1 AND rol=$2',
+            [correo.trim().toLowerCase(), 'cliente']
         );
 
-        if (result.rows.length === 0) {
-            return res.status(401).send('Correo o contraseña incorrectos.');
-        }
-
-        const cliente = result.rows[0];
-        const passwordValida = await bcrypt.compare(password, cliente.password);
+        const cliente        = rows[0];
+        const passwordValida = cliente && await bcrypt.compare(password, cliente.password);
 
         if (!passwordValida) {
-            return res.status(401).send('Correo o contraseña incorrectos.');
+            return res.render('cliente-inicio', { error: 'Correo o contraseña incorrectos.' });
         }
 
-        req.session.usuario = {
-            id: cliente.id,
-            nombre: cliente.nombre,
-            correo: cliente.correo,
-            rol: cliente.rol
-        };
-
-        res.redirect('/Cliente/pagina-cliente');
-    } catch (error) {
-        console.error('Error al iniciar sesión como cliente:', error.message);
+        req.session.regenerate((err) => {    
+            if (err) return res.status(500).send('Error al crear sesión');
+            req.session.usuario = {
+                id:     cliente.id,
+                nombre: cliente.nombre,
+                correo: cliente.correo,
+                rol:    cliente.rol
+            };
+            res.redirect('/Cliente/pagina-cliente');
+        });
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error interno al iniciar sesión.');
     }
 });
-app.post('/empleado-inicio', async (req, res) => {
+
+app.post('/empleado-inicio', loginLimiter, async (req, res) => {
     const { correo, password, id } = req.body;
 
+    if (!validarEmail(correo) || !password || !id) {
+        return res.render('empleado-inicio', { mensaje: 'Todos los campos son obligatorios.', error: true });
+    }
+
     try {
-        const result = await pool.query(
-            'SELECT * FROM usuarios WHERE correo = $1 AND id_rol = $2 AND rol = $3',
-            [correo, id, 'empleado']
+        const { rows } = await pool.query(
+            'SELECT * FROM usuarios WHERE correo=$1 AND id_rol=$2 AND rol=$3',
+            [correo.trim().toLowerCase(), id.trim(), 'empleado']
         );
 
-        if (result.rows.length === 0) {
-            return res.status(401).send('Credenciales incorrectas o no tienes permisos de empleado.');
-        }
-
-        const empleado = result.rows[0];
-        const passwordValida = await bcrypt.compare(password, empleado.password);
+        const empleado       = rows[0];
+        const passwordValida = empleado && await bcrypt.compare(password, empleado.password);
 
         if (!passwordValida) {
-            return res.status(401).send('Credenciales incorrectas o no tienes permisos de empleado.');
+            return res.render('empleado-inicio', { mensaje: 'Credenciales incorrectas.', error: true });
         }
 
-        req.session.usuario = {
-            id: empleado.id,
-            nombre: empleado.nombre,
-            correo: empleado.correo,
-            rol: empleado.rol,
-            id_rol: empleado.id_rol
-        };
-
-        res.redirect('/Empleado/pagina-empleado');
-    } catch (error) {
-        console.error('Error al iniciar sesión como empleado:', error.message);
+        req.session.regenerate((err) => {
+            if (err) return res.status(500).send('Error al crear sesión');
+            req.session.usuario = {
+                id:     empleado.id,
+                nombre: empleado.nombre,
+                correo: empleado.correo,
+                rol:    empleado.rol,
+                id_rol: empleado.id_rol
+            };
+            res.redirect('/Empleado/pagina-empleado');
+        });
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error interno al iniciar sesión.');
     }
 });
 
 app.post('/cliente-registro', async (req, res) => {
     const { nombre, correo, password } = req.body;
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
 
+    if (!nombre?.trim() || !validarEmail(correo) || !validarPassword(password)) {
+        return res.render('cliente-registro', {
+            successRegister: false,
+            error: 'Datos inválidos. La contraseña debe tener al menos 8 caracteres.'
+        });
+    }
+
+    try {
+        const existe = await pool.query('SELECT id FROM usuarios WHERE correo=$1', [correo.trim().toLowerCase()]);
+        if (existe.rows.length) {
+            return res.render('cliente-registro', { successRegister: false, error: 'Ese correo ya está registrado.' });
+        }
+
+        const hashed = await bcrypt.hash(password, 12);
         await pool.query(
-            'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1, $2, $3, $4)',
-            [nombre, correo, hashedPassword, 'cliente']
+            'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1,$2,$3,$4)',
+            [nombre.trim(), correo.trim().toLowerCase(), hashed, 'cliente']
         );
+
         res.render('cliente-registro', {
             alert: true,
             alerttitle: 'Registro exitoso',
-            alerttext: 'Ahora puedes iniciar sesión.',
-            alerticon: 'success',
+            alerttext:  'Ahora puedes iniciar sesión.',
+            alerticon:  'success',
             showConfirmButton: false,
             timer: 3000,
-            ruta: '/cliente-inicio'
-    });
+            ruta:  '/cliente-inicio'
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).send("Error en registro.");
+        res.status(500).send('Error en registro.');
     }
 });
 
 app.post('/empleado-registro', async (req, res) => {
-    const { nombre, correo, password } = req.body;
+    const { nombre, correo, password, codigo_acceso } = req.body;
+
+    if (codigo_acceso !== process.env.EMPLOYEE_REGISTER_CODE) {
+        return res.render('empleado-registro', {
+            successRegister: false,
+            error: 'Código de acceso incorrecto. Contacta al administrador.'
+        });
+    }
+
+    if (!nombre?.trim() || !validarEmail(correo) || !validarPassword(password)) {
+        return res.render('empleado-registro', {
+            successRegister: false,
+            error: 'Datos inválidos. La contraseña debe tener al menos 8 caracteres.'
+        });
+    }
+
     const uniqueId = `EMP-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const existe = await pool.query('SELECT id FROM usuarios WHERE correo=$1', [correo.trim().toLowerCase()]);
+        if (existe.rows.length) {
+            return res.render('empleado-registro', { successRegister: false, error: 'Ese correo ya está registrado.' });
+        }
 
+        const hashed = await bcrypt.hash(password, 12);
         await pool.query(
-            'INSERT INTO usuarios (nombre, correo, password, rol, id_rol) VALUES ($1, $2, $3, $4, $5)',
-            [nombre, correo, hashedPassword, 'empleado', uniqueId]
+            'INSERT INTO usuarios (nombre, correo, password, rol, id_rol) VALUES ($1,$2,$3,$4,$5)',
+            [nombre.trim(), correo.trim().toLowerCase(), hashed, 'empleado', uniqueId]
         );
 
-        const mailOptions = {
-            from: '"Carrocerías Sandoval" <carroceriassandoval1968@gmail.com>',
-            to: correo,
-            subject: 'Tu ID de Empleado - Acceso Exclusivo',
+        await transporter.sendMail({
+            from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
+            to:      correo,
+            subject: 'Tu ID de Empleado — Acceso Exclusivo',
             html: `
                 <h1>Bienvenido al equipo, ${nombre}</h1>
-                <p>Se ha creado tu cuenta de empleado exitosamente.</p>
+                <p>Tu cuenta de empleado fue creada exitosamente.</p>
                 <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
-                <p>Guarda este ID para funciones administrativas.</p>
+                <p>Guarda este ID en un lugar seguro. Lo necesitarás para iniciar sesión.</p>
+                <p><em>Si no solicitaste esta cuenta, ignora este correo.</em></p>
             `
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
-        res.render('empleado-inicio', { mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.' });
-
-    } catch (error) {
-        console.error("Error en registro empleado:", error.message);
+        res.render('empleado-inicio', {
+            mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.',
+            error: false
+        });
+    } catch (err) {
+        console.error('Error en registro empleado:', err.message);
         res.status(500).send('Error al registrar empleado.');
     }
 });
-app.post('/api/cotizaciones', async (req, res) => {
+
+
+app.post('/api/cotizaciones', esCliente, async (req, res) => {
     const { unidad, total, servicios } = req.body;
+
+    if (!unidad || !total || !Array.isArray(servicios) || servicios.length === 0) {
+        return res.status(400).json({ error: 'Datos de cotización incompletos' });
+    }
 
     try {
         const usuario = req.session.usuario;
 
-        if (!usuario) {
-            return res.status(401).json({ error: 'Usuario no autenticado' });
-        }
-
-        const cotizacionResult = await pool.query(
-            'INSERT INTO cotizaciones (cliente_id, unidad, total) VALUES ($1, $2, $3) RETURNING id',
+        const cotRes = await pool.query(
+            'INSERT INTO cotizaciones (cliente_id, unidad, total) VALUES ($1,$2,$3) RETURNING id',
             [usuario.id, unidad, total]
         );
+        const cotizacionId = cotRes.rows[0].id;
 
-        const cotizacionId = cotizacionResult.rows[0].id;
-
-        for (const servicio of servicios) {
+        for (const s of servicios) {
             await pool.query(
-                'INSERT INTO cotizacion_detalle (cotizacion_id, servicio, cantidad, subtotal) VALUES ($1, $2, $3, $4)',
-                [cotizacionId, servicio.nombre, servicio.cantidad, servicio.subtotal]
+                'INSERT INTO cotizacion_detalle (cotizacion_id, servicio, cantidad, subtotal) VALUES ($1,$2,$3,$4)',
+                [cotizacionId, s.nombre, s.cantidad, s.subtotal]
             );
         }
 
-        const mensajeHTML = `
-            <h2>Cotización Carrocerías Sandoval</h2>
-            <p><strong>Unidad:</strong> ${unidad}</p>
-
-            <h3>Servicios:</h3>
-            <ul>
-                ${servicios.map(s => `<li>${s.nombre} x${s.cantidad} - $${s.subtotal}</li>`).join('')}
-            </ul>
-
-            <h3>Total estimado: $${total}</h3>
-
-            <p>Nota: Esta es una cotización estimada.</p>
-        `;
-
         await transporter.sendMail({
-            from: '"Carrocerías Sandoval" <carroceriassandoval@gmail.com>',
-            to: usuario.correo,
-            subject: 'Tu cotización - Carrocerías Sandoval',
-            html: mensajeHTML
+            from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
+            to:      usuario.correo,
+            subject: 'Tu cotización — Carrocerías Sandoval',
+            html: `
+                <h2>Cotización Carrocerías Sandoval</h2>
+                <p><strong>Unidad:</strong> ${unidad}</p>
+                <h3>Servicios:</h3>
+                <ul>${servicios.map(s => `<li>${s.nombre} x${s.cantidad} — $${s.subtotal}</li>`).join('')}</ul>
+                <h3>Total estimado: $${total}</h3>
+                <p><em>Esta es una cotización estimada sujeta a revisión.</em></p>
+            `
         });
 
         res.json({ mensaje: 'Cotización guardada y enviada por correo' });
-
-    } catch (error) {
-        console.error('Error:', error.message);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Error al guardar cotización' });
     }
 });
-app.put('/api/editar-perfil', async (req, res) => {
+
+app.put('/api/editar-perfil', esCliente, async (req, res) => {
+    const { nombre, correo, telefono } = req.body;
+
+    if (!nombre?.trim() || !validarEmail(correo)) {
+        return res.status(400).json({ error: 'Nombre o correo inválidos' });
+    }
+
     try {
-        const usuario = req.session.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ error: 'No autenticado' });
-        }
-
-        const { nombre, correo, telefono } = req.body;
-
         await pool.query(
-            'UPDATE usuarios SET nombre = $1, correo = $2, telefono = $3 WHERE id = $4',
-            [nombre, correo, telefono, usuario.id]
+            'UPDATE usuarios SET nombre=$1, correo=$2, telefono=$3 WHERE id=$4',
+            [nombre.trim(), correo.trim().toLowerCase(), telefono?.trim() || null, req.session.usuario.id]
         );
-
+        req.session.usuario.nombre = nombre.trim();
+        req.session.usuario.correo = correo.trim().toLowerCase();
         res.json({ mensaje: 'Perfil actualizado' });
-
-    } catch (error) {
-        console.error(error.message);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Error al actualizar perfil' });
     }
 });
-app.delete('/api/eliminar-perfil', async (req, res) => {
+
+app.delete('/api/eliminar-perfil', esCliente, async (req, res) => {
     try {
-        const usuario = req.session.usuario;
-
-        if (!usuario) {
-            return res.status(401).json({ error: 'No autenticado' });
-        }
-
-        await pool.query(
-            'DELETE FROM usuarios WHERE id = $1',
-            [usuario.id]
-        );
-
+        await pool.query('DELETE FROM usuarios WHERE id=$1', [req.session.usuario.id]);
         req.session.destroy();
-
         res.json({ mensaje: 'Cuenta eliminada' });
-
-    } catch (error) {
-        console.error(error.message);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Error al eliminar perfil' });
     }
 });
+
 app.post('/api/subir-foto', esCliente, upload.single('foto'), async (req, res) => {
     try {
-        const usuarioId = req.session.usuario.id;
+        if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
         const fotoPath = `/uploads/${req.file.filename}`;
-
-        await pool.query(
-            'UPDATE usuarios SET foto_url = $1 WHERE id = $2',
-            [fotoPath, usuarioId]
-        );
-
+        await pool.query('UPDATE usuarios SET foto_url=$1 WHERE id=$2', [fotoPath, req.session.usuario.id]);
         res.json({ mensaje: 'Foto actualizada', foto: fotoPath });
-
-    } catch (error) {
-        console.error(error);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Error al subir foto' });
     }
 });
+
+const ESTADOS_VALIDOS = ['pendiente', 'en_proceso', 'terminado', 'entregado', 'cancelado'];
+
 app.post('/empleado/ordenes/actualizar-estado', esEmpleado, async (req, res) => {
+    const { id_orden, nuevo_estado } = req.body;
+
+    if (!ESTADOS_VALIDOS.includes(nuevo_estado)) {
+        return res.status(400).send('Estado no válido');
+    }
+
     try {
-        const { id_orden, nuevo_estado } = req.body;
-
-        await pool.query(
-            'UPDATE ordenes_trabajo SET estado = $1 WHERE id = $2',
-            [nuevo_estado, id_orden]
-        );
-
+        await pool.query('UPDATE ordenes_trabajo SET estado=$1 WHERE id=$2', [nuevo_estado, id_orden]);
         res.redirect('/Empleado/ordenes-trabajo');
-    } catch (error) {
-        console.error('Error al actualizar estado de la orden:', error.message);
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Error al actualizar estado');
     }
 });
 
-app.listen(3000, () => console.log('Servidor en http://localhost:3000'));
+app.post('/empleado/ordenes/nueva', esEmpleado, async (req, res) => {
+    const {
+        cliente_nombre, vehiculo_modelo, placas,
+        descripcion_falla, estado, costo_estimado
+    } = req.body;
+
+    if (!cliente_nombre?.trim() || !vehiculo_modelo?.trim() || !placas?.trim() || !descripcion_falla?.trim()) {
+        return res.render('Empleado/nueva-orden', {
+            error: 'Todos los campos obligatorios deben estar completos.'
+        });
+    }
+
+    try {
+        await pool.query(
+            `INSERT INTO ordenes_trabajo
+                (cliente_nombre, vehiculo_modelo, placas, descripcion_falla, estado, costo_estimado, fecha_entrada)
+             VALUES ($1,$2,$3,$4,$5,$6,NOW())`,
+            [
+                cliente_nombre.trim(),
+                vehiculo_modelo.trim(),
+                placas.trim().toUpperCase(),
+                descripcion_falla.trim(),
+                ESTADOS_VALIDOS.includes(estado) ? estado : 'pendiente',
+                parseFloat(costo_estimado) || 0
+            ]
+        );
+        res.redirect('/Empleado/ordenes-trabajo');
+    } catch (err) {
+        console.error(err);
+        res.render('Empleado/nueva-orden', { error: 'Error al crear la orden. Intenta de nuevo.' });
+    }
+});
+
+app.post('/empleado/ordenes/editar/:id', esEmpleado, async (req, res) => {
+    const {
+        cliente_nombre, vehiculo_modelo, placas,
+        descripcion_falla, estado, costo_estimado
+    } = req.body;
+
+    try {
+        await pool.query(
+            `UPDATE ordenes_trabajo
+                SET cliente_nombre=$1, vehiculo_modelo=$2, placas=$3,
+                    descripcion_falla=$4, estado=$5, costo_estimado=$6
+              WHERE id=$7`,
+            [
+                cliente_nombre?.trim(),
+                vehiculo_modelo?.trim(),
+                placas?.trim().toUpperCase(),
+                descripcion_falla?.trim(),
+                ESTADOS_VALIDOS.includes(estado) ? estado : 'pendiente',
+                parseFloat(costo_estimado) || 0,
+                req.params.id
+            ]
+        );
+        res.redirect('/Empleado/ordenes-trabajo');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al editar la orden');
+    }
+});
+
+app.delete('/empleado/ordenes/:id', esEmpleado, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM ordenes_trabajo WHERE id=$1', [req.params.id]);
+        res.json({ mensaje: 'Orden eliminada' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al eliminar la orden' });
+    }
+});
+
+
+app.post('/empleado/inventario/agregar', esEmpleado, async (req, res) => {
+    const { producto, cantidad, unidad, precio_unitario, stock_minimo } = req.body;
+
+    if (!producto?.trim() || cantidad === undefined) {
+        return res.redirect('/Empleado/inventario-taller?error=Datos+incompletos');
+    }
+
+    try {
+        await pool.query(
+            `INSERT INTO inventario (producto, cantidad, unidad, precio_unitario, stock_minimo)
+             VALUES ($1,$2,$3,$4,$5)`,
+            [
+                producto.trim(),
+                parseInt(cantidad) || 0,
+                unidad?.trim() || 'pieza',
+                parseFloat(precio_unitario) || 0,
+                parseInt(stock_minimo) || 0
+            ]
+        );
+        res.redirect('/Empleado/inventario-taller');
+    } catch (err) {
+        console.error(err);
+        res.redirect('/Empleado/inventario-taller?error=Error+al+agregar+producto');
+    }
+});
+
+app.post('/empleado/inventario/editar/:id', esEmpleado, async (req, res) => {
+    const { producto, cantidad, unidad, precio_unitario, stock_minimo } = req.body;
+
+    try {
+        await pool.query(
+            `UPDATE inventario
+                SET producto=$1, cantidad=$2, unidad=$3, precio_unitario=$4, stock_minimo=$5
+              WHERE id=$6`,
+            [
+                producto?.trim(),
+                parseInt(cantidad) || 0,
+                unidad?.trim() || 'pieza',
+                parseFloat(precio_unitario) || 0,
+                parseInt(stock_minimo) || 0,
+                req.params.id
+            ]
+        );
+        res.redirect('/Empleado/inventario-taller');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al editar producto');
+    }
+});
+
+app.delete('/empleado/inventario/:id', esEmpleado, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM inventario WHERE id=$1', [req.params.id]);
+        res.json({ mensaje: 'Producto eliminado' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al eliminar producto' });
+    }
+});
+
+app.post('/Empleado/configuracion/actualizar', esEmpleado, async (req, res) => {
+    const { nombre, correo, telefono } = req.body;
+
+    if (!nombre?.trim() || !validarEmail(correo)) {
+        const { rows } = await pool.query('SELECT id, nombre, correo, telefono, foto_url, id_rol FROM usuarios WHERE id=$1', [req.session.usuario.id]);
+        return res.render('Empleado/configuracion', {
+            usuario:  rows[0],
+            error:    'Nombre o correo inválidos.',
+            mensaje:  null
+        });
+    }
+
+    try {
+        await pool.query(
+            'UPDATE usuarios SET nombre=$1, correo=$2, telefono=$3 WHERE id=$4',
+            [nombre.trim(), correo.trim().toLowerCase(), telefono?.trim() || null, req.session.usuario.id]
+        );
+        req.session.usuario.nombre = nombre.trim();
+        req.session.usuario.correo = correo.trim().toLowerCase();
+
+        const { rows } = await pool.query('SELECT id, nombre, correo, telefono, foto_url, id_rol FROM usuarios WHERE id=$1', [req.session.usuario.id]);
+        res.render('Empleado/configuracion', {
+            usuario:  rows[0],
+            mensaje:  'Perfil actualizado correctamente.',
+            error:    null
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al actualizar perfil');
+    }
+});
+app.post('/Empleado/configuracion/cambiar-password', esEmpleado, async (req, res) => {
+    const { password_actual, password_nueva, password_confirmar } = req.body;
+
+    const renderError = async (error) => {
+        const { rows } = await pool.query('SELECT id, nombre, correo, telefono, foto_url, id_rol FROM usuarios WHERE id=$1', [req.session.usuario.id]);
+        return res.render('Empleado/configuracion', { usuario: rows[0], error, mensaje: null });
+    };
+
+    if (!validarPassword(password_nueva)) {
+        return renderError('La nueva contraseña debe tener al menos 8 caracteres.');
+    }
+    if (password_nueva !== password_confirmar) {
+        return renderError('Las contraseñas nuevas no coinciden.');
+    }
+
+    try {
+        const { rows } = await pool.query('SELECT password FROM usuarios WHERE id=$1', [req.session.usuario.id]);
+        const valida = await bcrypt.compare(password_actual, rows[0].password);
+
+        if (!valida) return renderError('La contraseña actual es incorrecta.');
+
+        const hashed = await bcrypt.hash(password_nueva, 12);
+        await pool.query('UPDATE usuarios SET password=$1 WHERE id=$2', [hashed, req.session.usuario.id]);
+
+        const resConf = await pool.query('SELECT id, nombre, correo, telefono, foto_url, id_rol FROM usuarios WHERE id=$1', [req.session.usuario.id]);
+        res.render('Empleado/configuracion', {
+            usuario: resConf.rows[0],
+            mensaje: 'Contraseña actualizada correctamente.',
+            error:   null
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al cambiar contraseña');
+    }
+});
+
+app.post('/api/empleado/subir-foto', esEmpleado, upload.single('foto'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
+        const fotoPath = `/uploads/${req.file.filename}`;
+        await pool.query('UPDATE usuarios SET foto_url=$1 WHERE id=$2', [fotoPath, req.session.usuario.id]);
+        res.json({ mensaje: 'Foto actualizada', foto: fotoPath });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al subir foto' });
+    }
+});
+
+app.use((err, req, res, next) => {
+    if (err.message === 'Solo se permiten imágenes (jpg, png, webp)') {
+        return res.status(400).json({ error: err.message });
+    }
+    console.error('Error no manejado:', err);
+    res.status(500).send('Error interno del servidor');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));

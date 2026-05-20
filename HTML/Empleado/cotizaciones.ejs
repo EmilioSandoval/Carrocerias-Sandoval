@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizaciones | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="/Empleado/pagina-empleado" class="nav__logo"><span>Carrocerias Sandoval</span></a>
+            <div class="nav__toggle" id="nav-toggle"><i class="ri-menu-line"></i></div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo"    class="nav__link">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller"  class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/cotizaciones"       class="nav__link active">Cotizaciones</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion"      class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout"                      class="nav__link">Cerrar Sesión</a></li>
+                </ul>
+                <div class="nav__close" id="nav-close"><i class="ri-close-line"></i></div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="history-section">
+            <h2>Cotizaciones de Clientes</h2>
+
+            <% if (!cotizaciones || cotizaciones.length === 0) { %>
+                <p style="text-align:center; margin-top:2rem;">No hay cotizaciones registradas todavía.</p>
+            <% } else { %>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Correo</th>
+                            <th>Unidad</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% cotizaciones.forEach(c => { %>
+                            <tr>
+                                <td><%= c.id %></td>
+                                <td><strong><%= c.cliente_nombre %></strong></td>
+                                <td><%= c.cliente_correo %></td>
+                                <td><%= c.unidad %></td>
+                                <td>$<%= Number(c.total).toLocaleString('es-MX') %></td>
+                                <td><%= new Date(c.fecha).toLocaleDateString('es-MX') %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+    </main>
+
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+    <script src="/JS/index.js"></script>
+</body>
+</html>

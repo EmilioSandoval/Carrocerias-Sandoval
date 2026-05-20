@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrocerias Sandoval</title>
+    <title>Configuración | Carrocerias Sandoval</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
-    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -22,7 +22,7 @@
                     <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link">Trabajo</a></li>
                     <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
                     <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
-                    <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link active">Configuración</a></li>
                     <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
@@ -32,51 +32,95 @@
         </nav>
     </header>
 
-   <main class="main">
-    <div class="settings-form">
-    <h3>Configuración de Perfil</h3>
-    <form action="/empleado/configuracion/guardar" method="POST">
-        <div class="form-group">
-            <label>Nombre de Usuario</label>
-            <input type="text" name="nombre" value="<%= usuario.nombre %>" required>
+    <main class="main">
+        <div class="settings-form">
+            <h3>Configuración de Perfil</h3>
+
+            <!-- Alertas -->
+            <% if (typeof mensaje !== 'undefined' && mensaje) { %>
+                <div class="alerta alerta-exito">
+                    <i class="ri-checkbox-circle-line"></i> <%= mensaje %>
+                </div>
+            <% } %>
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alerta alerta-error">
+                    <i class="ri-error-warning-line"></i> <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Tu ID de empleado (solo lectura) -->
+            <div class="form-group">
+                <label><i class="ri-user-id-line"></i> Tu ID de Empleado</label>
+                <input type="text" value="<%= usuario.id_rol %>" disabled>
+                <small>Este ID es necesario para iniciar sesión. Guárdalo en un lugar seguro.</small>
+            </div>
+
+            <!-- ── Formulario: Datos personales ── -->
+            <form action="/Empleado/configuracion/actualizar" method="POST">
+                <h4 style="margin: 1.5rem 0 0.75rem;">Datos Personales</h4>
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" value="<%= usuario.nombre %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" name="correo" value="<%= usuario.correo %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" name="telefono" value="<%= usuario.telefono || '' %>" placeholder="Opcional">
+                </div>
+
+                <button type="submit" class="btn-save">Guardar Datos</button>
+            </form>
+
+            <!-- ── Formulario: Cambiar contraseña ── -->
+            <form action="/Empleado/configuracion/cambiar-password" method="POST" style="margin-top: 2rem;">
+                <h4 style="margin: 0 0 0.75rem;">Cambiar Contraseña</h4>
+
+                <div class="form-group">
+                    <label>Contraseña Actual</label>
+                    <input type="password" name="password_actual" required placeholder="Tu contraseña actual">
+                </div>
+
+                <div class="form-group">
+                    <label>Nueva Contraseña</label>
+                    <input type="password" name="password_nueva" required placeholder="Mínimo 8 caracteres">
+                </div>
+
+                <div class="form-group">
+                    <label>Confirmar Nueva Contraseña</label>
+                    <input type="password" name="password_confirmar" required placeholder="Repite la nueva contraseña">
+                </div>
+
+                <button type="submit" class="btn-save">Cambiar Contraseña</button>
+            </form>
         </div>
-        <div class="form-group">
-            <label>Correo Electrónico</label>
-            <input type="email" value="<%= usuario.correo %>" disabled>
-            <small>El correo no puede ser modificado.</small>
-        </div>
-        <div class="form-group">
-            <label>Nueva Contraseña</label>
-            <input type="password" name="newPassword" placeholder="Dejar en blanco para mantener actual">
-        </div>
-        <button type="submit" class="btn-save">Actualizar Datos</button>
-    </form>
-</div>
-</main>
+    </main>
 
     <footer class="pie_de_pagina">
         <div class="contenedor_pie1">
             <div class="box">
                 <h2>NOSOTROS</h2>
                 <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
-                <p>A través de esta plataforma, buscamos mostrar nuestra trayectoria y los trabajos realizados.</p>
             </div>
-
             <div class="box">
                 <h2>Contáctanos</h2>
                 <div class="redes">
                     <a href="https://www.facebook.com/profile.php?id=61570873678977" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
                     <a href="https://www.instagram.com/carroceriassandoval/" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
-                    <a href="https://www.tiktok.com/@carroceriassandoval?is_from_webapp=1&sender_device=pc" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                    <a href="https://www.tiktok.com/@carroceriassandoval" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
                 </div>
             </div>
         </div>
-        
         <div class="contenedor_pie2">
             <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
         </div>
     </footer>
 
-    <script src="../JS/index.js"></script>
+    <script src="/JS/index.js"></script>
 </body>
 </html>
