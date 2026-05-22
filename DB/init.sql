@@ -3,12 +3,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nombre         VARCHAR(100) NOT NULL,
     correo         VARCHAR(100) UNIQUE NOT NULL,
     password       TEXT NOT NULL,
-    rol            VARCHAR(20) NOT NULL,          -- 'cliente' | 'empleado'
+    rol            VARCHAR(20) NOT NULL,          -- 'cliente' | 'empleado' | 'admin'
     id_rol         VARCHAR(50) UNIQUE,            -- Solo empleados: EMP-XXXXXX
     telefono       VARCHAR(20),
     foto_url       TEXT,
+    puesto         VARCHAR(100),
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS puesto VARCHAR(100);
 
 CREATE TABLE IF NOT EXISTS marca_autobus (
     id     SERIAL PRIMARY KEY,
@@ -44,10 +46,12 @@ CREATE TABLE IF NOT EXISTS ordenes_trabajo (
     vehiculo_modelo  VARCHAR(100) NOT NULL,
     placas           VARCHAR(20),
     descripcion_falla TEXT,
-    estado           VARCHAR(50) DEFAULT 'pendiente', 
+    estado           VARCHAR(50) DEFAULT 'pendiente',
     costo_estimado   DECIMAL(10,2) DEFAULT 0,
-    fecha_entrada    DATE DEFAULT CURRENT_DATE
+    fecha_entrada    DATE DEFAULT CURRENT_DATE,
+    fecha_limite     DATE
 );
+ALTER TABLE ordenes_trabajo ADD COLUMN IF NOT EXISTS fecha_limite DATE;
 
 CREATE TABLE IF NOT EXISTS cotizaciones (
     id         SERIAL PRIMARY KEY,
@@ -79,7 +83,8 @@ CREATE TABLE IF NOT EXISTS equipo (
     foto_url TEXT
 );
 INSERT INTO marca_autobus (nombre) VALUES
-    ('Dina'), ('Mercedes-Benz'), ('Volvo'), ('Scania'), ('Man')
+    ('Dina'), ('Mercedes-Benz'), ('Volvo'), ('Scania'), ('Man'),
+    ('Irizar'), ('Marcopolo')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO modelos_autobus (marca_id, nombre, tipo_unidad)
@@ -89,17 +94,33 @@ JOIN (VALUES
     ('Dina',          'Olímpico',    'Foráneo'),
     ('Mercedes-Benz', 'OF-1721',     'Urbano'),
     ('Mercedes-Benz', 'OF-1418',     'Foráneo'),
-    ('Volvo',         'B8R',         'Foráneo'),
+    ('Mercedes-Benz', 'OF-1722',     'Foráneo'),
+    ('Marcopolo',     'G7',          'Foráneo'),
+    ('Marcopolo',     'G8',          'Foráneo'),
+    ('Volvo',         '9700',         'Foráneo'),
+    ('Volvo',         '9800',         'Foráneo'),
+    ('Irizar',        'i6',          'Foráneo'),
+    ('Irizar',        'i8',          'Foráneo'),
+    ('Irizar',        'PB',          'Foráneo'),
     ('Scania',        'K360',        'Foráneo'),
     ('Man',           'Lion''s City','Urbano')
 ) AS v(marca, nombre, tipo_unidad) ON m.nombre = v.marca
 ON CONFLICT DO NOTHING;
 
 INSERT INTO servicios (nombre, descripcion, precio_estimado) VALUES
-    ('Pintura general',        'Pintura completa del vehículo',                    15000.00),
+    ('Pintura general',        'Pintura completa del vehículo',                    150000.00),
     ('Reparación de carrocería','Reparación de abolladuras y daños estructurales', 8000.00),
-    ('Pulido y encerado',      'Pulido completo y aplicación de cera',             3000.00),
-    ('Cambio de parabrisas',   'Sustitución de parabrisas delantero',              4500.00),
-    ('Tapizado de interiores', 'Tapizado completo de asientos y paredes',          12000.00),
-    ('Soldadura',              'Trabajos de soldadura estructural',                 5000.00)
+    ('Pulido y encerado',      'Pulido completo y aplicación de cera',             25000.00),
+    ('Cambio de parabrisas',   'Sustitución de parabrisas delantero',              20000.00),
+    ('Tapizado de interiores', 'Tapizado completo de asientos y paredes',          35000.00),
+    ('Instalación de accesorios', 'Instalación de accesorios como luces, espejos, etc.', 5000.00),
+    ('Conversion de Frente y parte trasera para unidades fóraneas', 'Modificación de la estructura para unidades foráneas', 600000.00)
 ON CONFLICT DO NOTHING;
+
+INSERT INTO usuarios (nombre, correo, password, rol, telefono, foto_url, puesto) VALUES
+    ('Ing. Felipe Sandoval',  'carrocerias-sandoval@hotmail.com', 'no-login', 'admin', '+52 33 31 05 8247', '/IMAGENES/Encargado1.jpg', 'Director de Producción'),
+    ('Lic. Emilio Sandoval',  'oscarsandoval12346@outlook.com',   'no-login', 'admin', '+52 33 34 62 1112', '/IMAGENES/Encargado2.jpg', 'Atención al Cliente')
+ON CONFLICT (correo) DO UPDATE
+    SET puesto    = EXCLUDED.puesto,
+        telefono  = EXCLUDED.telefono,
+        foto_url  = EXCLUDED.foto_url;

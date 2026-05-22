@@ -17,13 +17,15 @@
             <div class="nav__toggle" id="nav-toggle">
                 <i class="ri-menu-line"></i>
             </div>
-            <div class="nav__menu" id="nav-menu">
+             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="/Cliente/servicios" class="nav__link">Servicios</a></li>
-                    <li class="nav__item"><a href="/Cliente/trabajos" class="nav__link">Trabajos</a></li>
-                    <li class="nav__item"><a href="/Cliente/contactos" class="nav__link">Contacto</a></li>
-                    <li class="nav__item"><a href="/Cliente/perfil" class="nav__link">Perfil</a></li>
-                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
+                    <li class="nav__item"><a href="/Cliente/servicios"       class="nav__link">Servicios</a></li>
+                    <li class="nav__item"><a href="/Cliente/trabajos"         class="nav__link">Trabajos</a></li>
+                    <li class="nav__item"><a href="/Cliente/contactos"        class="nav__link">Contacto</a></li>
+                    <li class="nav__item"><a href="/Cliente/perfil"           class="nav__link">Perfil</a></li>
+                    <li class="nav__item"><a href="/Cliente/Cotizacion"       class="nav__link">Cotizar</a></li>
+                    <li class="nav__item"><a href="/Cliente/mis-cotizaciones" class="nav__link">Mis Cotizaciones</a></li>
+                    <li class="nav__item"><a href="/logout"                   class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
@@ -70,14 +72,11 @@
                         <label for="servicio">Tipo de Servicio</label>
                         <select id="servicio">
                             <option value="" disabled selected>Selecciona un servicio</option>
-                            <option value="12000" data-nombre="Pintura General">Pintura General - $12,000</option>
-                            <option value="2500" data-nombre="Pulido y Encerado">Pulido y Encerado - $2,500</option>
-                            <option value="5000" data-nombre="Reparación de Golpe (Leve)">Reparación de Golpe (Leve) - $5,000</option>
-                            <option value="1500" data-nombre="Pintura de Fascia">Pintura de Fascia - $1,500</option>
-                            <option value="600000" data-nombre="Conversión">Conversión - $600,000</option>
-                            <option value="8500" data-nombre="Interiores">Interiores - $8,500</option>
-                            <option value="10000" data-nombre="Carrocería">Carrocería - $10,000</option>
-                            <option value="7000" data-nombre="Restauración">Restauración - $7,000</option>
+                            <% servicios.forEach(s => { %>
+                            <option value="<%= s.precio_estimado %>" data-nombre="<%= s.nombre %>">
+                                <%= s.nombre %> - $<%= Number(s.precio_estimado).toLocaleString('es-MX') %>
+                            </option>
+                            <% }) %>
                         </select>
                     </div>
 

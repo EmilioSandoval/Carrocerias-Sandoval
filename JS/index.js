@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const esTexto = passwordInput.getAttribute('type') === 'text';
             passwordInput.setAttribute('type', esTexto ? 'password' : 'text');
             if (eyeIcon) {
-                eyeIcon.classList.toggle('bi-eye',       esTexto);
-                eyeIcon.classList.toggle('bi-eye-slash', !esTexto);
+                eyeIcon.classList.toggle('ri-eye-line',     esTexto);
+                eyeIcon.classList.toggle('ri-eye-off-line', !esTexto);
             }
         });
     }

@@ -363,6 +363,19 @@ a {
     object-fit: cover;
     border: 3px solid var(--acento-amarillo);
 }
+.foto-perfil--placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--acento-amarillo);
+    background: #0b1116;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--texto-gris);
+    flex-shrink: 0;
+}
 
 /* --- PIE DE PÁGINA (FOOTER) --- */
 .pie_de_pagina {
@@ -1529,6 +1542,45 @@ a {
 .badge-cancelado  { background: rgba(255,77,77,0.15);  color: var(--rojo-error); border: 1px solid var(--rojo-error); }
 .badge-ok      { background: rgba(46,204,113,0.15); color: var(--verde-exito); border: 1px solid var(--verde-exito); }
 .badge-peligro { background: rgba(255,77,77,0.15);  color: var(--rojo-error);  border: 1px solid var(--rojo-error); }
+
+.fecha-limite-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:4px; }
+.fecha-limite-row.vencida  { color: var(--rojo-error); }
+.fecha-limite-row.proxima  { color: var(--acento-amarillo); }
+.badge-alerta       { font-size:0.72rem; padding:2px 8px; border-radius:20px; font-weight:600;
+                      background:rgba(255,77,77,0.15); color:var(--rojo-error); border:1px solid var(--rojo-error); }
+.badge-alerta--warn { background:rgba(255,204,0,0.15); color:var(--acento-amarillo); border-color:var(--acento-amarillo); }
+
+/* ── Dashboard ─────────────────────────────────────────────────── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.2rem;
+    padding: 1.5rem 2rem 2rem;
+}
+.dash-card {
+    background: var(--fondo-tarjeta);
+    border-radius: 14px;
+    border-left: 4px solid var(--acento-amarillo);
+    padding: 1.4rem 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.dash-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.35); }
+.dash-card--alerta { border-left-color: var(--rojo-error); }
+.dash-card--orden.status-pendiente  { border-left-color: var(--acento-amarillo); }
+.dash-card--orden.status-en_proceso { border-left-color: #3498db; }
+.dash-card--orden.status-terminado  { border-left-color: var(--verde-exito); }
+.dash-card--orden.status-entregado  { border-left-color: #9b59b6; }
+.dash-card--orden.status-cancelado  { border-left-color: var(--rojo-error); }
+.dash-card__icon { font-size: 1.8rem; color: var(--acento-amarillo); }
+.dash-card--alerta .dash-card__icon { color: var(--rojo-error); }
+.dash-card__valor { font-size: 2rem; font-weight: 800; color: var(--texto-claro); line-height: 1; }
+.dash-card__label { font-size: 0.82rem; color: var(--texto-gris); }
+.dash-card__info  { display: flex; flex-direction: column; gap: 2px; }
+.dash-card__link  { margin-top: auto; font-size: 0.8rem; color: var(--acento-amarillo); text-decoration: none; }
+.dash-card__link:hover { text-decoration: underline; }
 
 /* ── Tabla general ─────────────────────────────────────────────── */
 .inventory-container,

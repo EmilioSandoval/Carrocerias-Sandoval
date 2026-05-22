@@ -35,13 +35,18 @@
                             <label for="correo"><i class="ri-mail-line"></i> Correo Electrónico</label>
                             <input class="inputsR" type="email" id="correo" name="correo" required placeholder="tu@correo.com">
                         </div>
+
+                         <div class="input-boxReg">
+                            <label for="telefono"><i class="ri-phone-line"></i> Número Telefónico</label>
+                            <input class="inputsR" type="tel" id="telefono" name="telefono" required placeholder="123-456-7890">
+                        </div>
                         
-                        <div class="mb-3 position-relative">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <div class="input-group">
-                                <input type="password" name="password" id="password" class="form-control" required>
-                                <button class="btn btn-outline-secondary" type="button" id="btnToggle">
-                                    <i class="bi bi-eye" id="eyeIcon"></i>
+                        <div class="input-boxReg">
+                            <label for="password"><i class="ri-lock-line"></i> Contraseña</label>
+                            <div class="input-password-wrap">
+                                <input class="inputsR" type="password" name="password" id="password" required placeholder="Mínimo 8 caracteres">
+                                <button class="btn-toggle-pass" type="button" id="btnToggle">
+                                    <i class="ri-eye-line" id="eyeIcon"></i>
                                 </button>
                             </div>
                         </div>

@@ -18,6 +18,8 @@
                     <li class="nav__item"><a href="/Empleado/ordenes-trabajo"   class="nav__link active">Trabajo</a></li>
                     <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
                     <li class="nav__item"><a href="/Empleado/inventario-taller"  class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/cotizaciones"       class="nav__link">Cotizaciones</a></li>
+                    <li class="nav__item"><a href="/Empleado/dashboard"          class="nav__link">Dashboard</a></li>
                     <li class="nav__item"><a href="/Empleado/configuracion"      class="nav__link">Configuración</a></li>
                     <li class="nav__item"><a href="/logout"                      class="nav__link">Cerrar Sesión</a></li>
                 </ul>
@@ -58,6 +60,12 @@
                     <label>Costo Estimado ($)</label>
                     <input type="number" name="costo_estimado" min="0" step="0.01" value="<%= orden.costo_estimado || 0 %>">
                 </div>
+                <div class="form-group">
+                    <label>Fecha Límite de Entrega</label>
+                    <input type="date" name="fecha_limite"
+                        value="<%= orden.fecha_limite ? new Date(orden.fecha_limite).toISOString().split('T')[0] : '' %>">
+                </div>
+
                 <div class="form-group">
                     <label>Estado</label>
                     <select name="estado">

@@ -33,13 +33,14 @@ const upload = multer({
 app.use('/uploads', express.static('uploads'));
 
 app.use(session({
-    secret:            process.env.SESSION_SECRET,   
+    secret:            process.env.SESSION_SECRET,
     resave:            false,
     saveUninitialized: false,
     cookie: {
-        secure:   process.env.NODE_ENV === 'production', 
-        httpOnly: true,          
-        maxAge:   1000 * 60 * 60 * 2   
+        secure:   process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge:   1000 * 60 * 60 * 2
     }
 }));
 
@@ -68,34 +69,48 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,   
-    max: 10,                     
+    windowMs: 15 * 60 * 1000,
+    max: 10,
     message: 'Demasiados intentos de inicio de sesión. Espera 15 minutos.',
     standardHeaders: true,
     legacyHeaders: false
 });
 
+const registroLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    message: 'Demasiados registros desde esta IP. Espera una hora.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+function noCache(req, res, next) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+}
+
 function esEmpleado(req, res, next) {
     if (req.session?.usuario?.rol === 'empleado') return next();
-    res.status(403).render('error', {
-        codigo:  403,
-        mensaje: 'Acceso denegado: área exclusiva para empleados.'
-    });
+    res.redirect('/empleado-inicio');
 }
 
 function esCliente(req, res, next) {
     if (req.session?.usuario?.rol === 'cliente') return next();
-    res.status(403).render('error', {
-        codigo:  403,
-        mensaje: 'Acceso denegado: área exclusiva para clientes.'
-    });
+    res.redirect('/cliente-inicio');
 }
 
 const EMAIL_REGEX    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN   = 8;
 
 function validarEmail(correo) { return EMAIL_REGEX.test(correo); }
-function validarPassword(pwd) { return pwd && pwd.length >= PASSWORD_MIN; }
+function validarPassword(pwd) {
+    return pwd &&
+        pwd.length >= PASSWORD_MIN &&
+        /[A-Z]/.test(pwd) &&
+        /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+}
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'HTML'));
@@ -122,13 +137,35 @@ app.get('/logout', (req, res) => {
     });
 });
 
+app.use('/Cliente',  noCache);
+app.use('/Empleado', noCache);
+
 app.get('/Cliente/pagina-cliente', esCliente, (req, res) =>
     res.render('Cliente/pagina-cliente', { userRole: 'cliente', usuario: req.session.usuario })
 );
 app.get('/Cliente/servicios',  esCliente, (req, res) => res.render('Cliente/servicios'));
 app.get('/Cliente/trabajos',   esCliente, (req, res) => res.render('Cliente/trabajos'));
-app.get('/Cliente/contactos',  esCliente, (req, res) => res.render('Cliente/contactos'));
-app.get('/Cliente/Cotizacion', esCliente, (req, res) => res.render('Cliente/Cotizacion'));
+app.get('/Cliente/contactos', esCliente, async (req, res) => {
+    try {
+        const { rows: admins } = await pool.query(
+            `SELECT nombre, correo, telefono, foto_url, puesto
+               FROM usuarios WHERE rol = 'admin' ORDER BY id`
+        );
+        res.render('Cliente/contactos', { admins });
+    } catch (err) {
+        console.error(err);
+        res.render('Cliente/contactos', { admins: [] });
+    }
+});
+app.get('/Cliente/Cotizacion', esCliente, async (req, res) => {
+    try {
+        const { rows: servicios } = await pool.query('SELECT id, nombre, precio_estimado FROM servicios ORDER BY nombre');
+        res.render('Cliente/Cotizacion', { servicios });
+    } catch (err) {
+        console.error(err);
+        res.render('Cliente/Cotizacion', { servicios: [] });
+    }
+});
 
 app.get('/Cliente/mis-cotizaciones', esCliente, async (req, res) => {
     try {
@@ -433,8 +470,8 @@ app.post('/empleado-inicio', loginLimiter, async (req, res) => {
     }
 });
 
-app.post('/cliente-registro', async (req, res) => {
-    const { nombre, correo, password } = req.body;
+app.post('/cliente-registro', registroLimiter, async (req, res) => {
+    const { nombre, correo, password, telefono } = req.body;
 
     if (!nombre?.trim() || !validarEmail(correo) || !validarPassword(password)) {
         return res.render('cliente-registro', {
@@ -451,8 +488,8 @@ app.post('/cliente-registro', async (req, res) => {
 
         const hashed = await bcrypt.hash(password, 12);
         await pool.query(
-            'INSERT INTO usuarios (nombre, correo, password, rol) VALUES ($1,$2,$3,$4)',
-            [nombre.trim(), correo.trim().toLowerCase(), hashed, 'cliente']
+            'INSERT INTO usuarios (nombre, correo, password, rol, telefono) VALUES ($1,$2,$3,$4,$5)',
+            [nombre.trim(), correo.trim().toLowerCase(), hashed, 'cliente', telefono?.trim() || null]
         );
 
         res.render('cliente-registro', {
@@ -470,8 +507,8 @@ app.post('/cliente-registro', async (req, res) => {
     }
 });
 
-app.post('/empleado-registro', async (req, res) => {
-    const { nombre, correo, password, codigo_acceso } = req.body;
+app.post('/empleado-registro', registroLimiter, async (req, res) => {
+    const { nombre, correo, password, telefono, codigo_acceso } = req.body;
 
     if (codigo_acceso !== process.env.EMPLOYEE_REGISTER_CODE) {
         return res.render('empleado-registro', {
@@ -497,8 +534,8 @@ app.post('/empleado-registro', async (req, res) => {
 
         const hashed = await bcrypt.hash(password, 12);
         await pool.query(
-            'INSERT INTO usuarios (nombre, correo, password, rol, id_rol) VALUES ($1,$2,$3,$4,$5)',
-            [nombre.trim(), correo.trim().toLowerCase(), hashed, 'empleado', uniqueId]
+            'INSERT INTO usuarios (nombre, correo, password, rol, id_rol, telefono) VALUES ($1,$2,$3,$4,$5,$6)',
+            [nombre.trim(), correo.trim().toLowerCase(), hashed, 'empleado', uniqueId, telefono?.trim() || null]
         );
 
         await transporter.sendMail({
@@ -634,7 +671,7 @@ app.post('/empleado/ordenes/actualizar-estado', esEmpleado, async (req, res) => 
 app.post('/empleado/ordenes/nueva', esEmpleado, async (req, res) => {
     const {
         cliente_nombre, vehiculo_modelo, placas,
-        descripcion_falla, estado, costo_estimado
+        descripcion_falla, estado, costo_estimado, fecha_limite
     } = req.body;
 
     if (!cliente_nombre?.trim() || !vehiculo_modelo?.trim() || !placas?.trim() || !descripcion_falla?.trim()) {
@@ -646,15 +683,16 @@ app.post('/empleado/ordenes/nueva', esEmpleado, async (req, res) => {
     try {
         await pool.query(
             `INSERT INTO ordenes_trabajo
-                (cliente_nombre, vehiculo_modelo, placas, descripcion_falla, estado, costo_estimado, fecha_entrada)
-             VALUES ($1,$2,$3,$4,$5,$6,NOW())`,
+                (cliente_nombre, vehiculo_modelo, placas, descripcion_falla, estado, costo_estimado, fecha_entrada, fecha_limite)
+             VALUES ($1,$2,$3,$4,$5,$6,NOW(),$7)`,
             [
                 cliente_nombre.trim(),
                 vehiculo_modelo.trim(),
                 placas.trim().toUpperCase(),
                 descripcion_falla.trim(),
                 ESTADOS_VALIDOS.includes(estado) ? estado : 'pendiente',
-                parseFloat(costo_estimado) || 0
+                parseFloat(costo_estimado) || 0,
+                fecha_limite || null
             ]
         );
         res.redirect('/Empleado/ordenes-trabajo');
@@ -667,15 +705,16 @@ app.post('/empleado/ordenes/nueva', esEmpleado, async (req, res) => {
 app.post('/empleado/ordenes/editar/:id', esEmpleado, async (req, res) => {
     const {
         cliente_nombre, vehiculo_modelo, placas,
-        descripcion_falla, estado, costo_estimado
+        descripcion_falla, estado, costo_estimado, fecha_limite
     } = req.body;
 
     try {
         await pool.query(
             `UPDATE ordenes_trabajo
                 SET cliente_nombre=$1, vehiculo_modelo=$2, placas=$3,
-                    descripcion_falla=$4, estado=$5, costo_estimado=$6
-              WHERE id=$7`,
+                    descripcion_falla=$4, estado=$5, costo_estimado=$6,
+                    fecha_limite=$7
+              WHERE id=$8`,
             [
                 cliente_nombre?.trim(),
                 vehiculo_modelo?.trim(),
@@ -683,6 +722,7 @@ app.post('/empleado/ordenes/editar/:id', esEmpleado, async (req, res) => {
                 descripcion_falla?.trim(),
                 ESTADOS_VALIDOS.includes(estado) ? estado : 'pendiente',
                 parseFloat(costo_estimado) || 0,
+                fecha_limite || null,
                 req.params.id
             ]
         );

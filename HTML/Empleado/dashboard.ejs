@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Carrocerias Sandoval</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header" id="header">
+        <nav class="navegador">
+            <a href="/Empleado/pagina-empleado" class="nav__logo">
+                <span>Carrocerias Sandoval</span>
+            </a>
+            <div class="nav__toggle" id="nav-toggle"><i class="ri-menu-line"></i></div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="/Empleado/ordenes-trabajo"    class="nav__link">Trabajo</a></li>
+                    <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
+                    <li class="nav__item"><a href="/Empleado/inventario-taller"  class="nav__link">Inventario</a></li>
+                    <li class="nav__item"><a href="/Empleado/cotizaciones"       class="nav__link">Cotizaciones</a></li>
+                    <li class="nav__item"><a href="/Empleado/dashboard"          class="nav__link active">Dashboard</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion"      class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout"                      class="nav__link">Cerrar Sesión</a></li>
+                </ul>
+                <div class="nav__close" id="nav-close"><i class="ri-close-line"></i></div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="orders-header">
+            <h2>Dashboard</h2>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <!-- Tarjeta: alertas de inventario -->
+            <div class="dash-card <%= alertasInventario > 0 ? 'dash-card--alerta' : '' %>">
+                <div class="dash-card__icon"><i class="ri-error-warning-line"></i></div>
+                <div class="dash-card__info">
+                    <span class="dash-card__valor"><%= alertasInventario %></span>
+                    <span class="dash-card__label">Productos con stock bajo</span>
+                </div>
+                <a href="/Empleado/inventario-taller" class="dash-card__link">Ver inventario</a>
+            </div>
+
+            <!-- Tarjeta: cotizaciones del mes -->
+            <div class="dash-card">
+                <div class="dash-card__icon"><i class="ri-file-list-3-line"></i></div>
+                <div class="dash-card__info">
+                    <span class="dash-card__valor"><%= cotizacionesMes %></span>
+                    <span class="dash-card__label">Cotizaciones este mes</span>
+                </div>
+                <a href="/Empleado/cotizaciones" class="dash-card__link">Ver cotizaciones</a>
+            </div>
+
+            <!-- Tarjetas por estado de órdenes -->
+            <%
+                const estadoIconos = {
+                    pendiente:  { icono: 'ri-time-line',         label: 'Pendientes' },
+                    en_proceso: { icono: 'ri-tools-line',         label: 'En Proceso' },
+                    terminado:  { icono: 'ri-check-double-line',  label: 'Terminadas' },
+                    entregado:  { icono: 'ri-truck-line',         label: 'Entregadas' },
+                    cancelado:  { icono: 'ri-close-circle-line',  label: 'Canceladas' }
+                };
+                const totalesPorEstado = {};
+                ordenesPorEstado.forEach(r => { totalesPorEstado[r.estado] = Number(r.total); });
+            %>
+            <% Object.entries(estadoIconos).forEach(([estado, cfg]) => { %>
+            <div class="dash-card dash-card--orden status-<%= estado %>">
+                <div class="dash-card__icon"><i class="<%= cfg.icono %>"></i></div>
+                <div class="dash-card__info">
+                    <span class="dash-card__valor"><%= totalesPorEstado[estado] || 0 %></span>
+                    <span class="dash-card__label">Órdenes <%= cfg.label %></span>
+                </div>
+                <a href="/Empleado/ordenes-trabajo?estado=<%= estado %>" class="dash-card__link">Ver órdenes</a>
+            </div>
+            <% }) %>
+
+        </div>
+    </main>
+
+    <footer class="pie_de_pagina">
+        <div class="contenedor_pie1">
+            <div class="box">
+                <h2>NOSOTROS</h2>
+                <p>Somos una empresa con el propósito de entregar un servicio de calidad y darnos a conocer a nivel nacional.</p>
+            </div>
+            <div class="box">
+                <h2>Contáctanos</h2>
+                <div class="redes">
+                    <a href="https://www.facebook.com/profile.php?id=61570873678977" class="nav_social-iconf">Facebook <i class="ri-facebook-box-line"></i></a>
+                    <a href="https://www.instagram.com/carroceriassandoval/" class="nav_social-iconf">Instagram <i class="ri-instagram-box-line"></i></a>
+                    <a href="https://www.tiktok.com/@carroceriassandoval" class="nav_social-iconf">Tik-Tok <i class="ri-tiktok-box-line"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="contenedor_pie2">
+            <small>&copy; 2026 <b>Carrocerias Sandoval</b> - Todos los derechos reservados.</small>
+        </div>
+    </footer>
+
+    <script src="/JS/index.js"></script>
+</body>
+</html>

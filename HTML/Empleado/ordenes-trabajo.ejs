@@ -22,8 +22,10 @@
                     <li class="nav__item"><a href="/Empleado/ordenes-trabajo" class="nav__link active">Trabajo</a></li>
                     <li class="nav__item"><a href="/Empleado/historial-clientes" class="nav__link">Historial</a></li>
                     <li class="nav__item"><a href="/Empleado/inventario-taller" class="nav__link">Inventario</a></li>
-                    <li class="nav__item"><a href="/Empleado/configuracion" class="nav__link">Configuración</a></li>
-                    <li class="nav__item"><a href="/logout" class="nav__link">Cerrar Sesión</a></li>
+                    <li class="nav__item"><a href="/Empleado/cotizaciones"    class="nav__link">Cotizaciones</a></li>
+                    <li class="nav__item"><a href="/Empleado/dashboard"       class="nav__link">Dashboard</a></li>
+                    <li class="nav__item"><a href="/Empleado/configuracion"   class="nav__link">Configuración</a></li>
+                    <li class="nav__item"><a href="/logout"                   class="nav__link">Cerrar Sesión</a></li>
                 </ul>
                 <div class="nav__close" id="nav-close">
                     <i class="ri-close-line"></i>
@@ -72,6 +74,22 @@
                                 <p><strong>Costo estimado:</strong> $<%= Number(orden.costo_estimado).toLocaleString('es-MX') %></p>
                             <% } %>
                             <p><strong>Fecha de entrada:</strong> <%= new Date(orden.fecha_entrada).toLocaleDateString('es-MX') %></p>
+                            <% if (orden.fecha_limite) {
+                                const hoy       = new Date(); hoy.setHours(0,0,0,0);
+                                const limite    = new Date(orden.fecha_limite); limite.setHours(0,0,0,0);
+                                const diasRest  = Math.ceil((limite - hoy) / 86400000);
+                                const vencida   = diasRest < 0;
+                                const proxima   = diasRest >= 0 && diasRest <= 2;
+                            %>
+                                <p class="fecha-limite-row <%= vencida ? 'vencida' : proxima ? 'proxima' : '' %>">
+                                    <i class="ri-time-line"></i>
+                                    <strong>Fecha límite:</strong>
+                                    <%= limite.toLocaleDateString('es-MX') %>
+                                    <% if (vencida) { %><span class="badge-alerta">Vencida</span>
+                                    <% } else if (proxima) { %><span class="badge-alerta badge-alerta--warn">Vence en <%= diasRest === 0 ? 'hoy' : diasRest + (diasRest === 1 ? ' día' : ' días') %></span>
+                                    <% } %>
+                                </p>
+                            <% } %>
                         </div>
 
                         <div class="order-actions">
