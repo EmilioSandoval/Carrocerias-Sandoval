@@ -12,6 +12,7 @@ const multer     = require('multer');
 const rateLimit  = require('express-rate-limit');
 
 const app = express();
+app.set('trust proxy', 1);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
