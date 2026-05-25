@@ -7,7 +7,7 @@ const { Pool }   = require('pg');
 
 fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
 const crypto     = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const session    = require('express-session');
 const pgSession  = require('connect-pg-simple')(session);
 const bcrypt     = require('bcrypt');
@@ -70,16 +70,7 @@ const pool = new Pool({
     port:     Number(process.env.DB_PORT) || 5432,
 });
 
-const transporter = nodemailer.createTransport({
-    host:   'smtp.gmail.com',
-    port:   587,
-    secure: false,
-    family: 4,
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS
-    }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 app.use(session({
     store: new pgSession({
@@ -577,8 +568,8 @@ app.post('/empleado-registro', registroLimiter, async (req, res) => {
         );
 
         // Fire-and-forget: no bloquea la respuesta
-        transporter.sendMail({
-            from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
+        resend.emails.send({
+            from:    'Carrocerías Sandoval <onboarding@resend.dev>',
             to:      correo,
             subject: 'Tu ID de Empleado — Acceso Exclusivo',
             html: `
@@ -624,8 +615,8 @@ app.post('/api/cotizaciones', esCliente, async (req, res) => {
             );
         }
 
-        transporter.sendMail({
-            from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
+        resend.emails.send({
+            from:    'Carrocerías Sandoval <onboarding@resend.dev>',
             to:      usuario.correo,
             subject: 'Tu cotización — Carrocerías Sandoval',
             html: `
