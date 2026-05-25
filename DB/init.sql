@@ -114,6 +114,9 @@ INSERT INTO servicios (nombre, descripcion, precio_estimado) VALUES
     ('Cambio de parabrisas',   'Sustitución de parabrisas delantero',              20000.00),
     ('Tapizado de interiores', 'Tapizado completo de asientos y paredes',          35000.00),
     ('Instalación de accesorios', 'Instalación de accesorios como luces, espejos, etc.', 5000.00),
+    ('Instalación de sistema de sonido', 'Instalación de sistema de sonido para el vehículo', 10000.00),
+    ('Instalación de sistema de entretenimiento', 'Instalación de pantallas y sistemas de entretenimiento', 15000.00),
+    ('Instalacion de casa rodante', 'Conversion de autobus a casa rodante', 200000.00),
     ('Conversion de Frente y parte trasera para unidades fóraneas', 'Modificación de la estructura para unidades foráneas', 600000.00)
 ON CONFLICT DO NOTHING;
 

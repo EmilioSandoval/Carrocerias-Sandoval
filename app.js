@@ -39,7 +39,7 @@ app.use(session({
     cookie: {
         secure:   process.env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge:   1000 * 60 * 60 * 2
     }
 }));
@@ -476,7 +476,7 @@ app.post('/cliente-registro', registroLimiter, async (req, res) => {
     if (!nombre?.trim() || !validarEmail(correo) || !validarPassword(password)) {
         return res.render('cliente-registro', {
             successRegister: false,
-            error: 'Datos inválidos. La contraseña debe tener al menos 8 caracteres.'
+            error: 'Contraseña inválida: mínimo 8 caracteres, una mayúscula y un carácter especial (!@#$...).'
         });
     }
 
