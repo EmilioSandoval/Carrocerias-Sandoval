@@ -20,14 +20,21 @@ const app = express();
 app.set('trust proxy', 1);
 
 const enProduccion = process.env.NODE_ENV === 'production';
+const tieneCloudinary = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
 
-let upload;
-if (enProduccion) {
+if (tieneCloudinary) {
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key:    process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET
     });
+    console.log('Cloudinary configurado correctamente');
+} else if (enProduccion) {
+    console.warn('ADVERTENCIA: Variables de Cloudinary no encontradas. Las fotos no funcionarán.');
+}
+
+let upload;
+if (tieneCloudinary) {
     const cloudStorage = new CloudinaryStorage({
         cloudinary,
         params: { folder: 'carrocerias-sandoval', allowed_formats: ['jpg','jpeg','png','webp'] }
@@ -669,7 +676,7 @@ app.delete('/api/eliminar-perfil', esCliente, async (req, res) => {
 app.post('/api/subir-foto', esCliente, upload.single('foto'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
-        const fotoPath = enProduccion ? req.file.path : `/uploads/${req.file.filename}`;
+        const fotoPath = tieneCloudinary ? req.file.path : `/uploads/${req.file.filename}`;
         await pool.query('UPDATE usuarios SET foto_url=$1 WHERE id=$2', [fotoPath, req.session.usuario.id]);
         res.json({ mensaje: 'Foto actualizada', foto: fotoPath });
     } catch (err) {
@@ -902,7 +909,7 @@ app.post('/Empleado/configuracion/cambiar-password', esEmpleado, async (req, res
 app.post('/api/empleado/subir-foto', esEmpleado, upload.single('foto'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
-        const fotoPath = enProduccion ? req.file.path : `/uploads/${req.file.filename}`;
+        const fotoPath = tieneCloudinary ? req.file.path : `/uploads/${req.file.filename}`;
         await pool.query('UPDATE usuarios SET foto_url=$1 WHERE id=$2', [fotoPath, req.session.usuario.id]);
         res.json({ mensaje: 'Foto actualizada', foto: fotoPath });
     } catch (err) {
