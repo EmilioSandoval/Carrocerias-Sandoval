@@ -573,21 +573,26 @@ app.post('/empleado-registro', registroLimiter, async (req, res) => {
             [nombre.trim(), correo.trim().toLowerCase(), hashed, 'empleado', uniqueId, telefono?.trim() || null]
         );
 
-        await transporter.sendMail({
-            from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
-            to:      correo,
-            subject: 'Tu ID de Empleado — Acceso Exclusivo',
-            html: `
-                <h1>Bienvenido al equipo, ${nombre}</h1>
-                <p>Tu cuenta de empleado fue creada exitosamente.</p>
-                <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
-                <p>Guarda este ID en un lugar seguro. Lo necesitarás para iniciar sesión.</p>
-                <p><em>Si no solicitaste esta cuenta, ignora este correo.</em></p>
-            `
-        });
+        // El correo no debe bloquear el registro si falla
+        try {
+            await transporter.sendMail({
+                from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
+                to:      correo,
+                subject: 'Tu ID de Empleado — Acceso Exclusivo',
+                html: `
+                    <h1>Bienvenido al equipo, ${nombre}</h1>
+                    <p>Tu cuenta de empleado fue creada exitosamente.</p>
+                    <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
+                    <p>Guarda este ID en un lugar seguro. Lo necesitarás para iniciar sesión.</p>
+                    <p><em>Si no solicitaste esta cuenta, ignora este correo.</em></p>
+                `
+            });
+        } catch (mailErr) {
+            console.error('Aviso: no se pudo enviar correo de empleado:', mailErr.message);
+        }
 
         res.render('empleado-inicio', {
-            mensaje: 'Empleado registrado. Revisa tu correo para obtener tu ID.',
+            mensaje: `Empleado registrado. Tu ID es: ${uniqueId} — también se envió a tu correo.`,
             error: false
         });
     } catch (err) {
