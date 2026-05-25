@@ -669,7 +669,7 @@ app.delete('/api/eliminar-perfil', esCliente, async (req, res) => {
 app.post('/api/subir-foto', esCliente, upload.single('foto'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
-        const fotoPath = `/uploads/${req.file.filename}`;
+        const fotoPath = enProduccion ? req.file.path : `/uploads/${req.file.filename}`;
         await pool.query('UPDATE usuarios SET foto_url=$1 WHERE id=$2', [fotoPath, req.session.usuario.id]);
         res.json({ mensaje: 'Foto actualizada', foto: fotoPath });
     } catch (err) {
@@ -902,7 +902,7 @@ app.post('/Empleado/configuracion/cambiar-password', esEmpleado, async (req, res
 app.post('/api/empleado/subir-foto', esEmpleado, upload.single('foto'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
-        const fotoPath = `/uploads/${req.file.filename}`;
+        const fotoPath = enProduccion ? req.file.path : `/uploads/${req.file.filename}`;
         await pool.query('UPDATE usuarios SET foto_url=$1 WHERE id=$2', [fotoPath, req.session.usuario.id]);
         res.json({ mensaje: 'Foto actualizada', foto: fotoPath });
     } catch (err) {
