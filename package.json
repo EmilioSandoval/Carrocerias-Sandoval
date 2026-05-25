@@ -3,6 +3,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^5.0.4",
     "bcrypt": "^6.0.0",
     "cloudinary": "^1.41.3",
     "connect-pg-simple": "^10.0.0",
@@ -15,7 +16,6 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^8.0.5",
     "package.json": "^2.0.1",
-    "pg": "^8.20.0",
-    "resend": "^6.12.3"
+    "pg": "^8.20.0"
   }
 }

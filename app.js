@@ -7,7 +7,7 @@ const { Pool }   = require('pg');
 
 fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
 const crypto     = require('crypto');
-const { Resend } = require('resend');
+const Brevo      = require('@getbrevo/brevo');
 const session    = require('express-session');
 const pgSession  = require('connect-pg-simple')(session);
 const bcrypt     = require('bcrypt');
@@ -70,7 +70,17 @@ const pool = new Pool({
     port:     Number(process.env.DB_PORT) || 5432,
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const brevoClient = new Brevo.TransactionalEmailsApi();
+brevoClient.authentications['apiKey'].apiKey = process.env.BREVO_API_KEY || '';
+
+async function enviarCorreo({ to, toName, subject, html }) {
+    const mail = new Brevo.SendSmtpEmail();
+    mail.subject   = subject;
+    mail.htmlContent = html;
+    mail.sender    = { name: 'Carrocerías Sandoval', email: 'carroceriassandoval1968@gmail.com' };
+    mail.to        = [{ email: to, name: toName || to }];
+    return brevoClient.sendTransacEmail(mail);
+}
 
 app.use(session({
     store: new pgSession({
@@ -568,9 +578,9 @@ app.post('/empleado-registro', registroLimiter, async (req, res) => {
         );
 
         // Fire-and-forget: no bloquea la respuesta
-        resend.emails.send({
-            from:    'Carrocerías Sandoval <onboarding@resend.dev>',
+        enviarCorreo({
             to:      correo,
+            toName:  nombre,
             subject: 'Tu ID de Empleado — Acceso Exclusivo',
             html: `
                 <h1>Bienvenido al equipo, ${nombre}</h1>
@@ -615,9 +625,9 @@ app.post('/api/cotizaciones', esCliente, async (req, res) => {
             );
         }
 
-        resend.emails.send({
-            from:    'Carrocerías Sandoval <onboarding@resend.dev>',
+        enviarCorreo({
             to:      usuario.correo,
+            toName:  usuario.nombre,
             subject: 'Tu cotización — Carrocerías Sandoval',
             html: `
                 <h2>Cotización Carrocerías Sandoval</h2>
