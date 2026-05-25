@@ -575,23 +575,19 @@ app.post('/empleado-registro', registroLimiter, async (req, res) => {
             [nombre.trim(), correo.trim().toLowerCase(), hashed, 'empleado', uniqueId, telefono?.trim() || null]
         );
 
-        // El correo no debe bloquear el registro si falla
-        try {
-            await transporter.sendMail({
-                from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
-                to:      correo,
-                subject: 'Tu ID de Empleado — Acceso Exclusivo',
-                html: `
-                    <h1>Bienvenido al equipo, ${nombre}</h1>
-                    <p>Tu cuenta de empleado fue creada exitosamente.</p>
-                    <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
-                    <p>Guarda este ID en un lugar seguro. Lo necesitarás para iniciar sesión.</p>
-                    <p><em>Si no solicitaste esta cuenta, ignora este correo.</em></p>
-                `
-            });
-        } catch (mailErr) {
-            console.error('Aviso: no se pudo enviar correo de empleado:', mailErr.message);
-        }
+        // Fire-and-forget: no bloquea la respuesta
+        transporter.sendMail({
+            from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
+            to:      correo,
+            subject: 'Tu ID de Empleado — Acceso Exclusivo',
+            html: `
+                <h1>Bienvenido al equipo, ${nombre}</h1>
+                <p>Tu cuenta de empleado fue creada exitosamente.</p>
+                <p>Tu ID único de acceso es: <strong>${uniqueId}</strong></p>
+                <p>Guarda este ID en un lugar seguro. Lo necesitarás para iniciar sesión.</p>
+                <p><em>Si no solicitaste esta cuenta, ignora este correo.</em></p>
+            `
+        }).catch(mailErr => console.error('Aviso: correo empleado no enviado:', mailErr.message));
 
         res.render('empleado-inicio', {
             mensaje: `Empleado registrado. Tu ID es: ${uniqueId} — también se envió a tu correo.`,
@@ -627,7 +623,7 @@ app.post('/api/cotizaciones', esCliente, async (req, res) => {
             );
         }
 
-        await transporter.sendMail({
+        transporter.sendMail({
             from:    `"Carrocerías Sandoval" <${process.env.MAIL_USER}>`,
             to:      usuario.correo,
             subject: 'Tu cotización — Carrocerías Sandoval',
@@ -639,7 +635,7 @@ app.post('/api/cotizaciones', esCliente, async (req, res) => {
                 <h3>Total estimado: $${total}</h3>
                 <p><em>Esta es una cotización estimada sujeta a revisión.</em></p>
             `
-        });
+        }).catch(mailErr => console.error('Aviso: correo cotización no enviado:', mailErr.message));
 
         res.json({ mensaje: 'Cotización guardada y enviada por correo' });
     } catch (err) {
