@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
     "connect-pg-simple": "^10.0.0",
     "dotenv": "^17.4.2",
     "ejs": "^4.0.1",
@@ -11,6 +12,7 @@
     "express-rate-limit": "^8.5.2",
     "express-session": "^1.19.0",
     "multer": "^2.1.1",
+    "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^8.0.5",
     "package.json": "^2.0.1",
     "pg": "^8.20.0"

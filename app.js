@@ -2,7 +2,10 @@ require('dotenv').config();
 
 const express    = require('express');
 const path       = require('path');
+const fs         = require('fs');
 const { Pool }   = require('pg');
+
+fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
 const crypto     = require('crypto');
 const nodemailer = require('nodemailer');
 const session    = require('express-session');
@@ -10,28 +13,46 @@ const pgSession  = require('connect-pg-simple')(session);
 const bcrypt     = require('bcrypt');
 const multer     = require('multer');
 const rateLimit  = require('express-rate-limit');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 app.set('trust proxy', 1);
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename:    (req, file, cb) => {
-        const ext        = path.extname(file.originalname).toLowerCase();
-        const safeName   = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
-        cb(null, safeName);
-    }
-});
-const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 },                        
-    fileFilter: (req, file, cb) => {
-        const allowed = /jpeg|jpg|png|webp/;
-        const ok = allowed.test(path.extname(file.originalname).toLowerCase())
-                && allowed.test(file.mimetype);
-        ok ? cb(null, true) : cb(new Error('Solo se permiten imágenes (jpg, png, webp)'));
-    }
-});
+const enProduccion = process.env.NODE_ENV === 'production';
+
+let upload;
+if (enProduccion) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key:    process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    const cloudStorage = new CloudinaryStorage({
+        cloudinary,
+        params: { folder: 'carrocerias-sandoval', allowed_formats: ['jpg','jpeg','png','webp'] }
+    });
+    upload = multer({ storage: cloudStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+} else {
+    const localStorage = multer.diskStorage({
+        destination: (req, file, cb) => cb(null, 'uploads/'),
+        filename:    (req, file, cb) => {
+            const ext      = path.extname(file.originalname).toLowerCase();
+            const safeName = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
+            cb(null, safeName);
+        }
+    });
+    upload = multer({
+        storage: localStorage,
+        limits: { fileSize: 5 * 1024 * 1024 },
+        fileFilter: (req, file, cb) => {
+            const allowed = /jpeg|jpg|png|webp/;
+            const ok = allowed.test(path.extname(file.originalname).toLowerCase())
+                    && allowed.test(file.mimetype);
+            ok ? cb(null, true) : cb(new Error('Solo se permiten imágenes (jpg, png, webp)'));
+        }
+    });
+}
 app.use('/uploads', express.static('uploads'));
 
 const pool = new Pool({
