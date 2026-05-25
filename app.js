@@ -6,6 +6,7 @@ const { Pool }   = require('pg');
 const crypto     = require('crypto');
 const nodemailer = require('nodemailer');
 const session    = require('express-session');
+const pgSession  = require('connect-pg-simple')(session);
 const bcrypt     = require('bcrypt');
 const multer     = require('multer');
 const rateLimit  = require('express-rate-limit');
@@ -32,7 +33,28 @@ const upload = multer({
 });
 app.use('/uploads', express.static('uploads'));
 
+const pool = new Pool({
+    user:     process.env.DB_USER,
+    host:     process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port:     Number(process.env.DB_PORT) || 5432,
+});
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS
+    }
+});
+
 app.use(session({
+    store: new pgSession({
+        pool,
+        tableName:            'session',
+        createTableIfMissing: true
+    }),
     secret:            process.env.SESSION_SECRET,
     resave:            false,
     saveUninitialized: false,
@@ -43,22 +65,6 @@ app.use(session({
         maxAge:   1000 * 60 * 60 * 2
     }
 }));
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.MAIL_USER,    
-        pass: process.env.MAIL_PASS
-    }
-});
-
-const pool = new Pool({
-    user:     process.env.DB_USER,      
-    host:     process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port:     Number(process.env.DB_PORT) || 5432,
-});
 
 pool.query('SELECT NOW()', (err) =>
     err ? console.error('Error de conexión a DB:', err.message)
