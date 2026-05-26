@@ -7,7 +7,6 @@ const { Pool }   = require('pg');
 
 fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
 const crypto     = require('crypto');
-const Brevo      = require('@getbrevo/brevo');
 const session    = require('express-session');
 const pgSession  = require('connect-pg-simple')(session);
 const bcrypt     = require('bcrypt');
@@ -70,16 +69,21 @@ const pool = new Pool({
     port:     Number(process.env.DB_PORT) || 5432,
 });
 
-const brevoClient = new Brevo.TransactionalEmailsApi();
-brevoClient.authentications['apiKey'].apiKey = process.env.BREVO_API_KEY || '';
-
 async function enviarCorreo({ to, toName, subject, html }) {
-    const mail = new Brevo.SendSmtpEmail();
-    mail.subject   = subject;
-    mail.htmlContent = html;
-    mail.sender    = { name: 'Carrocerías Sandoval', email: 'carroceriassandoval1968@gmail.com' };
-    mail.to        = [{ email: to, name: toName || to }];
-    return brevoClient.sendTransacEmail(mail);
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method:  'POST',
+        headers: {
+            'api-key':      process.env.BREVO_API_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            sender:      { name: 'Carrocerías Sandoval', email: 'carroceriassandoval1968@gmail.com' },
+            to:          [{ email: to, name: toName || to }],
+            subject,
+            htmlContent: html
+        })
+    });
+    if (!res.ok) throw new Error(await res.text());
 }
 
 app.use(session({
